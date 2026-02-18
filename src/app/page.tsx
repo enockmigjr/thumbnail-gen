@@ -21,7 +21,6 @@ import { HistoryModal } from "@/components/HistoryModal";
 import { Footer } from "@/components/Footer";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { error } from "console";
 
 interface GeneratedImage {
   data: string;
@@ -202,14 +201,14 @@ export default function Home() {
       localStorage.setItem("thumbnail-history", JSON.stringify(updatedHistory));
 
       toast.success("Miniature régénérée");
-    } catch {
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
       console.error("Generation error:", error);
 
-    let message = "Erreur lors de la génération";
+      let message = "Erreur lors de la génération";
       if (error instanceof Error) {
         if (error.message.includes("429") || error.message.includes("quota")) {
-          message =
-            "Quota API dépassé. Attendez quelques secondes et réessayez.";
+          message = "Quota API dépassé. Attendez quelques secondes et réessayez.";
         } else if (error.message.includes("API key")) {
           message = "Clé API invalide. Vérifiez votre fichier .env.local ou .env.";
         } else {
