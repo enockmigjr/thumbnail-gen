@@ -36,7 +36,10 @@ export function HistoryModal({ history, onClear, onUseItem }: HistoryModalProps)
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   useEffect(() => {
     if (open) {
@@ -57,7 +60,7 @@ export function HistoryModal({ history, onClear, onUseItem }: HistoryModalProps)
 
       <div
         className={cn(
-          "relative z-10 w-full max-w-2xl rounded-2xl shadow-2xl",
+          "relative z-10 w-full max-w-6xl rounded-2xl shadow-2xl",
           "bg-white dark:bg-neutral-900",
           "border border-neutral-200 dark:border-neutral-800",
           "overflow-hidden max-h-[85vh] flex flex-col"
