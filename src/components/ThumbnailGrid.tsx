@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { Download, ZoomIn, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface ThumbnailGridProps {
   images: Array<{ data: string; mediaType: string }>;
@@ -12,12 +13,20 @@ interface ThumbnailGridProps {
 
 function SkeletonCard() {
   return (
-    <div className="relative aspect-video rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800">
-      <div className="absolute inset-0 bg-linear-to-r from-zinc-900 via-zinc-800 to-zinc-900 animate-shimmer bg-size-[200%_100%]" />
+    <div
+      className={cn(
+        "relative aspect-video rounded-xl overflow-hidden",
+        "border border-neutral-200 dark:border-neutral-800",
+        "bg-neutral-100 dark:bg-neutral-900"
+      )}
+    >
+      <div className="absolute inset-0 bg-linear-to-r from-neutral-100 via-neutral-200 to-neutral-100 dark:from-neutral-900 dark:via-neutral-800 dark:to-neutral-900 animate-shimmer bg-size-[200%_100%]" />
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-        <div className="w-12 h-12 rounded-full bg-zinc-800 animate-pulse" />
-        <div className="w-24 h-2 rounded-full bg-zinc-800 animate-pulse" />
-        <div className="w-16 h-2 rounded-full bg-zinc-800 animate-pulse" />
+        <div className="w-10 h-10 rounded-xl bg-neutral-200 dark:bg-neutral-800 animate-pulse" />
+        <div className="space-y-1.5">
+          <div className="w-20 h-1.5 rounded-full bg-neutral-200 dark:bg-neutral-800 animate-pulse" />
+          <div className="w-14 h-1.5 rounded-full bg-neutral-200 dark:bg-neutral-800 animate-pulse mx-auto" />
+        </div>
       </div>
     </div>
   );
@@ -46,43 +55,64 @@ export function ThumbnailGrid({ images, isLoading }: ThumbnailGridProps) {
         {images.map((img, index) => (
           <div
             key={index}
-            className="group relative aspect-video rounded-xl overflow-hidden border border-zinc-800 hover:border-zinc-600 transition-all duration-300 hover:shadow-2xl hover:shadow-violet-500/10"
+            className={cn(
+              "group relative aspect-video rounded-xl overflow-hidden",
+              "border border-neutral-200 dark:border-neutral-800",
+              "hover:border-neutral-300 dark:hover:border-neutral-700",
+              "transition-all duration-300",
+              "hover:shadow-lg dark:hover:shadow-neutral-900/50"
+            )}
           >
             <Image
               src={`data:${img.mediaType};base64,${img.data}`}
               alt={`Generated thumbnail ${index + 1}`}
               fill
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              className="object-cover transition-transform duration-500 group-hover:scale-[1.02]"
             />
 
             {/* Overlay */}
-            <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
             {/* Actions */}
-            <div className="absolute bottom-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0">
-              <Button
-                size="sm"
-                variant="secondary"
-                className="h-8 w-8 p-0 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20"
+            <div className="absolute bottom-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-1 group-hover:translate-y-0">
+              <button
                 onClick={() =>
                   setLightboxSrc(`data:${img.mediaType};base64,${img.data}`)
                 }
+                className={cn(
+                  "w-8 h-8 rounded-lg flex items-center justify-center",
+                  "bg-white/90 dark:bg-neutral-900/90 backdrop-blur-sm",
+                  "border border-white/20",
+                  "text-neutral-700 dark:text-neutral-300",
+                  "hover:bg-white dark:hover:bg-neutral-800 transition-colors"
+                )}
               >
-                <ZoomIn className="w-3.5 h-3.5 text-white" />
-              </Button>
+                <ZoomIn className="w-3.5 h-3.5" />
+              </button>
               <Button
                 size="sm"
-                className="h-8 px-3 bg-violet-600 hover:bg-violet-500 text-white text-xs font-medium"
+                className={cn(
+                  "h-8 px-3 text-xs font-medium rounded-lg",
+                  "bg-white/90 dark:bg-neutral-900/90 backdrop-blur-sm",
+                  "border border-white/20",
+                  "text-neutral-900 dark:text-neutral-100",
+                  "hover:bg-white dark:hover:bg-neutral-800 transition-colors"
+                )}
                 onClick={() => downloadImage(img.data, img.mediaType, index)}
               >
-                <Download className="w-3.5 h-3.5 mr-1" />
+                <Download className="w-3 h-3 mr-1.5" />
                 Télécharger
               </Button>
             </div>
 
-            {/* Index badge */}
-            <div className="absolute top-3 left-3 w-6 h-6 rounded-full bg-black/50 backdrop-blur-sm border border-white/10 flex items-center justify-center">
-              <span className="text-xs text-white/70 font-medium">
+            {/* Index */}
+            <div
+              className={cn(
+                "absolute top-3 left-3 w-5 h-5 rounded-md flex items-center justify-center",
+                "bg-black/40 backdrop-blur-sm"
+              )}
+            >
+              <span className="text-[10px] text-white font-semibold">
                 {index + 1}
               </span>
             </div>
@@ -93,17 +123,21 @@ export function ThumbnailGrid({ images, isLoading }: ThumbnailGridProps) {
       {/* Lightbox */}
       {lightboxSrc && (
         <div
-          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-6"
           onClick={() => setLightboxSrc(null)}
         >
           <button
-            className="absolute top-4 right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+            className={cn(
+              "absolute top-5 right-5 w-9 h-9 rounded-xl flex items-center justify-center",
+              "bg-white/10 hover:bg-white/20 transition-colors",
+              "text-white"
+            )}
             onClick={() => setLightboxSrc(null)}
           >
-            <X className="w-5 h-5 text-white" />
+            <X className="w-4 h-4" />
           </button>
           <div
-            className="relative max-w-5xl w-full aspect-video rounded-2xl overflow-hidden shadow-2xl"
+            className="relative max-w-5xl w-full aspect-video rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10"
             onClick={(e) => e.stopPropagation()}
           >
             <Image

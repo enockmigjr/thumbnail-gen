@@ -5,6 +5,7 @@ import { Sparkles, Youtube, Minus, Plus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropZone } from "@/components/DropZone";
 import { ThumbnailGrid } from "@/components/ThumbnailGrid";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -18,9 +19,10 @@ export default function Home() {
   const [extraImages, setExtraImages] = useState<string[]>([]);
   const [inspirationImages, setInspirationImages] = useState<string[]>([]);
   const [personImages, setPersonImages] = useState<string[]>([]);
-  const [count, setCount] = useState(2);
+  const [count, setCount] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
+  const [progress, setProgress] = useState(0);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleGenerate = async () => {
@@ -31,13 +33,16 @@ export default function Home() {
 
     setIsLoading(true);
     setGeneratedImages([]);
+    setProgress(0);
+
+    // Simuler la progression pendant la génération séquentielle
+    const totalTime = count * 30000; // ~30s par image
+    const interval = setInterval(() => {
+      setProgress((p) => Math.min(p + (100 / (totalTime / 500)), 92));
+    }, 500);
 
     try {
-      const allImages = [
-        ...extraImages,
-        ...inspirationImages,
-        ...personImages,
-      ];
+      const allImages = [...extraImages, ...inspirationImages, ...personImages];
 
       const response = await fetch("/api/generate", {
         method: "POST",
@@ -59,13 +64,17 @@ export default function Home() {
         throw new Error("Aucune image générée");
       }
 
+      setProgress(100);
       setGeneratedImages(data.images);
-      toast.success(`${data.images.length} miniature(s) générée(s) avec succès !`);
+      toast.success(
+        `${data.images.length} miniature${data.images.length > 1 ? "s" : ""} générée${data.images.length > 1 ? "s" : ""} !`
+      );
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Une erreur est survenue";
       toast.error(message);
     } finally {
+      clearInterval(interval);
       setIsLoading(false);
     }
   };
@@ -77,67 +86,89 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white">
-      {/* Background gradient */}
-      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-violet-950/20 via-zinc-950 to-zinc-950 pointer-events-none" />
-
-      {/* Header */}
-      <header className="relative z-10 border-b border-zinc-800/50 bg-zinc-950/80 backdrop-blur-xl">
-        <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-linear-to-br from-red-500 to-red-700 shadow-lg shadow-red-500/20">
-              <Youtube className="w-5 h-5 text-white" />
+    <div className="min-h-screen bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-100 transition-colors duration-300">
+      {/* Header — style Vercel */}
+      <header className="sticky top-0 z-50 border-b border-neutral-200 dark:border-neutral-800 bg-white/80 dark:bg-neutral-950/80 backdrop-blur-xl">
+        <div className="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
+          {/* Logo */}
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-neutral-900 dark:bg-white flex items-center justify-center">
+              <Youtube className="w-4 h-4 text-white dark:text-neutral-900" />
             </div>
-            <div>
-              <h1 className="text-lg font-bold tracking-tight">
-                Thumbnail<span className="text-violet-400">AI</span>
-              </h1>
-              <p className="text-xs text-zinc-500">Powered by Gemini</p>
-            </div>
+            <span className="text-sm font-semibold tracking-tight">
+              ThumbnailAI
+            </span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-xs text-zinc-500">Gemini 3 Pro</span>
+
+          {/* Right */}
+          <div className="flex items-center gap-3">
+            <span className="hidden sm:flex items-center gap-1.5 text-xs text-neutral-500 dark:text-neutral-400">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Gemini 3 Pro
+            </span>
+            <ThemeToggle />
           </div>
         </div>
       </header>
 
-      {/* Main content */}
-      <main className="relative z-10 max-w-5xl mx-auto px-4 py-8 space-y-6">
-        {/* Prompt area */}
-        <div className="relative group">
-          <div className="absolute -inset-0.5 bg-linear-to-r from-violet-600/20 to-pink-600/20 rounded-2xl blur opacity-0 group-focus-within:opacity-100 transition-opacity duration-500" />
-          <div className="relative bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden focus-within:border-zinc-600 transition-colors">
+      {/* Main */}
+      <main className="max-w-4xl mx-auto px-6 py-10 space-y-8">
+        {/* Hero */}
+        <div className="space-y-1">
+          <h2 className="text-2xl font-bold tracking-tight">
+            Générateur de miniatures
+          </h2>
+          <p className="text-sm text-neutral-500 dark:text-neutral-400">
+            Décrivez votre miniature, ajoutez des images de référence, et laissez Gemini créer.
+          </p>
+        </div>
+
+        {/* Prompt */}
+        <div className="space-y-2">
+          <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+            Description
+          </label>
+          <div
+            className={cn(
+              "relative rounded-xl border transition-all duration-200",
+              "border-neutral-200 dark:border-neutral-800",
+              "bg-neutral-50 dark:bg-neutral-900",
+              "focus-within:border-neutral-400 dark:focus-within:border-neutral-600",
+              "focus-within:ring-4 focus-within:ring-neutral-100 dark:focus-within:ring-neutral-900"
+            )}
+          >
             <textarea
               ref={textareaRef}
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Décrivez votre miniature YouTube... (ex: 'Un développeur surpris devant son écran avec du code Python, style cinématique')"
-              className="w-full bg-transparent text-white placeholder-zinc-600 resize-none p-5 text-base leading-relaxed focus:outline-none min-h-[100px]"
+              placeholder="Ex : Un développeur surpris devant son écran avec du code Python, style cinématique, lumière dramatique..."
+              className="w-full bg-transparent text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-600 resize-none px-4 pt-4 pb-3 text-sm leading-relaxed focus:outline-none min-h-[90px]"
               rows={3}
             />
-            <div className="flex items-center justify-between px-4 py-2 border-t border-zinc-800/50">
-              <span className="text-xs text-zinc-600">
+            <div className="flex items-center justify-between px-4 py-2.5 border-t border-neutral-200 dark:border-neutral-800">
+              <span className="text-xs text-neutral-400 dark:text-neutral-600">
                 Ctrl+Entrée pour générer
               </span>
               <span
                 className={cn(
-                  "text-xs",
-                  prompt.length > 800 ? "text-red-400" : "text-zinc-600"
+                  "text-xs tabular-nums",
+                  prompt.length > 800
+                    ? "text-red-500"
+                    : "text-neutral-400 dark:text-neutral-600"
                 )}
               >
-                {prompt.length}/1000
+                {prompt.length} / 1000
               </span>
             </div>
           </div>
         </div>
 
         {/* Upload zones */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <DropZone
             label="Images supplémentaires"
-            description="Contexte visuel additionnel"
+            description="Contexte visuel"
             multiple={true}
             maxFiles={4}
             onFilesChange={setExtraImages}
@@ -158,31 +189,50 @@ export default function Home() {
           />
         </div>
 
-        {/* Controls */}
-        <div className="flex items-center justify-between gap-4 bg-zinc-900/50 border border-zinc-800 rounded-2xl px-5 py-4">
-          {/* Count selector */}
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-zinc-400 font-medium whitespace-nowrap">
-              Nombre de miniatures
+        {/* Controls bar */}
+        <div
+          className={cn(
+            "flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4",
+            "p-4 rounded-xl border",
+            "border-neutral-200 dark:border-neutral-800",
+            "bg-neutral-50 dark:bg-neutral-900"
+          )}
+        >
+          {/* Count */}
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-neutral-600 dark:text-neutral-400 font-medium">
+              Nombre
             </span>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5">
               <button
                 onClick={() => setCount(Math.max(1, count - 1))}
                 disabled={count <= 1}
-                className="w-7 h-7 rounded-lg bg-zinc-800 hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
+                className={cn(
+                  "w-7 h-7 rounded-md flex items-center justify-center transition-colors",
+                  "border border-neutral-200 dark:border-neutral-700",
+                  "bg-white dark:bg-neutral-800",
+                  "hover:bg-neutral-100 dark:hover:bg-neutral-700",
+                  "disabled:opacity-30 disabled:cursor-not-allowed",
+                  "text-neutral-600 dark:text-neutral-400"
+                )}
               >
-                <Minus className="w-3.5 h-3.5" />
+                <Minus className="w-3 h-3" />
               </button>
-              <div className="flex gap-1.5">
+              <div className="flex gap-1">
                 {[1, 2, 3, 4].map((n) => (
                   <button
                     key={n}
                     onClick={() => setCount(n)}
                     className={cn(
-                      "w-8 h-8 rounded-lg text-sm font-semibold transition-all duration-200",
+                      "w-8 h-7 rounded-md text-xs font-semibold transition-all duration-150",
                       count === n
-                        ? "bg-violet-600 text-white shadow-lg shadow-violet-500/30"
-                        : "bg-zinc-800 text-zinc-400 hover:bg-zinc-700 hover:text-white"
+                        ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900"
+                        : cn(
+                            "border border-neutral-200 dark:border-neutral-700",
+                            "bg-white dark:bg-neutral-800",
+                            "text-neutral-600 dark:text-neutral-400",
+                            "hover:bg-neutral-100 dark:hover:bg-neutral-700"
+                          )
                     )}
                   >
                     {n}
@@ -192,48 +242,83 @@ export default function Home() {
               <button
                 onClick={() => setCount(Math.min(4, count + 1))}
                 disabled={count >= 4}
-                className="w-7 h-7 rounded-lg bg-zinc-800 hover:bg-zinc-700 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
+                className={cn(
+                  "w-7 h-7 rounded-md flex items-center justify-center transition-colors",
+                  "border border-neutral-200 dark:border-neutral-700",
+                  "bg-white dark:bg-neutral-800",
+                  "hover:bg-neutral-100 dark:hover:bg-neutral-700",
+                  "disabled:opacity-30 disabled:cursor-not-allowed",
+                  "text-neutral-600 dark:text-neutral-400"
+                )}
               >
-                <Plus className="w-3.5 h-3.5" />
+                <Plus className="w-3 h-3" />
               </button>
             </div>
+            {count > 1 && (
+              <span className="text-xs text-neutral-400 dark:text-neutral-600">
+                ~{count * 30}s
+              </span>
+            )}
           </div>
 
-          {/* Generate button */}
+          {/* Generate */}
           <Button
             onClick={handleGenerate}
             disabled={isLoading || !prompt.trim()}
             className={cn(
-              "relative px-6 py-2.5 h-auto font-semibold text-sm rounded-xl transition-all duration-300",
-              "bg-linear-to-r from-violet-600 to-violet-700 hover:from-violet-500 hover:to-violet-600",
-              "shadow-lg shadow-violet-500/25 hover:shadow-violet-500/40",
-              "disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none",
-              isLoading && "animate-pulse"
+              "h-9 px-5 text-sm font-medium rounded-lg transition-all duration-200",
+              "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900",
+              "hover:bg-neutral-700 dark:hover:bg-neutral-100",
+              "disabled:opacity-40 disabled:cursor-not-allowed",
+              "shadow-sm"
             )}
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />
                 Génération...
               </>
             ) : (
               <>
-                <Sparkles className="w-4 h-4 mr-2" />
-                Générer {count > 1 ? `${count} miniatures` : "la miniature"}
+                <Sparkles className="w-3.5 h-3.5 mr-2" />
+                Générer{count > 1 ? ` (${count})` : ""}
               </>
             )}
           </Button>
         </div>
 
-        {/* Results */}
-        {(isLoading || generatedImages.length > 0) && (
-          <div className="space-y-4">
-            <div className="flex items-center gap-3">
-              <div className="h-px flex-1 bg-zinc-800" />
-              <span className="text-xs text-zinc-500 font-medium uppercase tracking-widest">
-                {isLoading ? "Génération en cours..." : `${generatedImages.length} résultat(s)`}
+        {/* Progress bar */}
+        {isLoading && (
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-neutral-500 dark:text-neutral-400">
+                Génération en cours
+                {count > 1 && ` — images séquentielles (${count}x)`}
               </span>
-              <div className="h-px flex-1 bg-zinc-800" />
+              <span className="text-xs tabular-nums text-neutral-400 dark:text-neutral-600">
+                {Math.round(progress)}%
+              </span>
+            </div>
+            <div className="h-1 w-full rounded-full bg-neutral-200 dark:bg-neutral-800 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-neutral-900 dark:bg-white transition-all duration-500 ease-out"
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Divider + Results */}
+        {(isLoading || generatedImages.length > 0) && (
+          <div className="space-y-5">
+            <div className="flex items-center gap-3">
+              <div className="h-px flex-1 bg-neutral-200 dark:bg-neutral-800" />
+              <span className="text-xs font-medium text-neutral-400 dark:text-neutral-600 uppercase tracking-widest">
+                {isLoading
+                  ? "En cours..."
+                  : `${generatedImages.length} résultat${generatedImages.length > 1 ? "s" : ""}`}
+              </span>
+              <div className="h-px flex-1 bg-neutral-200 dark:bg-neutral-800" />
             </div>
             <ThumbnailGrid images={generatedImages} isLoading={isLoading} />
           </div>
@@ -241,21 +326,22 @@ export default function Home() {
 
         {/* Empty state */}
         {!isLoading && generatedImages.length === 0 && (
-          <div className="text-center py-16 space-y-4">
-            <div className="relative inline-block">
-              <div className="w-20 h-20 rounded-2xl bg-linear-to-br from-zinc-800 to-zinc-900 border border-zinc-700 flex items-center justify-center mx-auto">
-                <Youtube className="w-9 h-9 text-zinc-600" />
-              </div>
-              <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-violet-600 flex items-center justify-center">
-                <Sparkles className="w-3 h-3 text-white" />
-              </div>
+          <div className="flex flex-col items-center justify-center py-20 gap-4">
+            <div
+              className={cn(
+                "w-16 h-16 rounded-2xl flex items-center justify-center",
+                "border border-neutral-200 dark:border-neutral-800",
+                "bg-neutral-50 dark:bg-neutral-900"
+              )}
+            >
+              <Youtube className="w-7 h-7 text-neutral-400 dark:text-neutral-600" />
             </div>
-            <div>
-              <p className="text-zinc-400 font-medium">
-                Vos miniatures apparaîtront ici
+            <div className="text-center space-y-1">
+              <p className="text-sm font-medium text-neutral-600 dark:text-neutral-400">
+                Aucune miniature générée
               </p>
-              <p className="text-zinc-600 text-sm mt-1">
-                Décrivez votre miniature et cliquez sur Générer
+              <p className="text-xs text-neutral-400 dark:text-neutral-600">
+                Décrivez votre miniature ci-dessus et cliquez sur Générer
               </p>
             </div>
           </div>

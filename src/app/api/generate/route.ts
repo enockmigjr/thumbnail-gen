@@ -1,7 +1,9 @@
 import { google } from "@ai-sdk/google";
 import { generateText } from "ai";
 
-export const maxDuration = 60;
+export const maxDuration = 120;
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export async function POST(req: Request) {
   try {
@@ -9,10 +11,16 @@ export async function POST(req: Request) {
 
     const thumbnailPrompt = `${prompt}. Create a YouTube thumbnail in 16:9 ratio, photorealistic, high quality, vibrant colors, eye-catching design, bold composition, professional photography style.`;
 
+    const totalCount = Math.min(Math.max(1, count || 1), 4);
     const generatedImages: Array<{ data: string; mediaType: string }> = [];
 
-    // Generate thumbnails one by one (or in parallel for count)
-    const generateOne = async () => {
+    // Génération SÉQUENTIELLE avec délai pour respecter les quotas API
+    for (let i = 0; i < totalCount; i++) {
+      if (i > 0) {
+        // Attendre 8 secondes entre chaque requête (quota free tier)
+        await sleep(8000);
+      }
+
       const result = await generateText({
         model: google("gemini-3-pro-image-preview"),
         providerOptions: {
@@ -40,17 +48,25 @@ export async function POST(req: Request) {
           });
         }
       }
-    };
-
-    const totalCount = Math.min(Math.max(1, count || 1), 4);
-    const promises = Array.from({ length: totalCount }, () => generateOne());
-    await Promise.all(promises);
+    }
 
     return Response.json({ images: generatedImages });
   } catch (error) {
     console.error("Generation error:", error);
-    const message =
-      error instanceof Error ? error.message : "Unknown error occurred";
+
+    // Extraire un message lisible depuis l'erreur API
+    let message = "Erreur lors de la génération";
+    if (error instanceof Error) {
+      if (error.message.includes("429") || error.message.includes("quota")) {
+        message =
+          "Quota API dépassé. Attendez quelques secondes et réessayez, ou réduisez le nombre de miniatures.";
+      } else if (error.message.includes("API key")) {
+        message = "Clé API invalide. Vérifiez votre fichier .env.local.";
+      } else {
+        message = error.message;
+      }
+    }
+
     return Response.json({ error: message }, { status: 500 });
   }
 }
