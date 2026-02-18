@@ -123,6 +123,31 @@ export default function Home() {
           </p>
         </div>
 
+        {/* Upload zones */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <DropZone
+            label="Images supplémentaires"
+            description="Contexte visuel"
+            multiple={true}
+            maxFiles={4}
+            onFilesChange={setExtraImages}
+          />
+          <DropZone
+            label="Inspiration"
+            description="Style de référence"
+            multiple={false}
+            maxFiles={1}
+            onFilesChange={setInspirationImages}
+          />
+          <DropZone
+            label="Personnes"
+            description="Visages à inclure"
+            multiple={true}
+            maxFiles={3}
+            onFilesChange={setPersonImages}
+          />
+        </div>
+
         {/* Prompt */}
         <div className="space-y-2">
           <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
@@ -162,31 +187,6 @@ export default function Home() {
               </span>
             </div>
           </div>
-        </div>
-
-        {/* Upload zones */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <DropZone
-            label="Images supplémentaires"
-            description="Contexte visuel"
-            multiple={true}
-            maxFiles={4}
-            onFilesChange={setExtraImages}
-          />
-          <DropZone
-            label="Inspiration"
-            description="Style de référence"
-            multiple={false}
-            maxFiles={1}
-            onFilesChange={setInspirationImages}
-          />
-          <DropZone
-            label="Personnes"
-            description="Visages à inclure"
-            multiple={true}
-            maxFiles={3}
-            onFilesChange={setPersonImages}
-          />
         </div>
 
         {/* Controls bar */}
