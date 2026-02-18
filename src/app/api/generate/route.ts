@@ -7,9 +7,10 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export async function POST(req: Request) {
   try {
-    const { prompt, images, count } = await req.json();
+    const { prompt, images, count, aspectRatio = "16:9" } = await req.json();
 
-    const thumbnailPrompt = `${prompt}. Create a YouTube thumbnail in 16:9 ratio, photorealistic, high quality, vibrant colors, eye-catching design, bold composition, professional photography style.`;
+    const ratioDesc = aspectRatio === "9:16" ? "9:16 vertical ratio (Shorts)" : aspectRatio === "1:1" ? "1:1 square ratio" : "16:9 horizontal ratio";
+    const thumbnailPrompt = `${prompt}. Create a YouTube thumbnail in ${ratioDesc}, photorealistic, high quality, vibrant colors, eye-catching design, bold composition, professional photography style.`;
 
     const totalCount = Math.min(Math.max(1, count || 1), 4);
     const generatedImages: Array<{ data: string; mediaType: string }> = [];
