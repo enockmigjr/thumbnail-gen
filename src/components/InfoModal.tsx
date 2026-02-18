@@ -7,9 +7,11 @@ import {
   X,
   Zap,
   Image as ImageIcon,
-  Users,
   Sparkles,
   AlertTriangle,
+  Swords,
+  Type,
+  Monitor
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -37,11 +39,10 @@ export function InfoModal() {
   const modal = open ? (
     <div
       className="fixed inset-0 z-9999 flex items-center justify-center p-4"
-      style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0 }}
     >
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
         onClick={() => setOpen(false)}
       />
 
@@ -63,10 +64,10 @@ export function InfoModal() {
             </div>
             <div>
               <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-                ThumbnailAI
+                ThumbnailAI Studio
               </h2>
               <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                Guide d&apos;utilisation
+                Guide des outils IA avancés
               </p>
             </div>
           </div>
@@ -83,89 +84,78 @@ export function InfoModal() {
         </div>
 
         {/* Scrollable content */}
-        <div className="px-6 py-5 space-y-5 overflow-y-auto">
-          {/* Description */}
-          <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed">
-            ThumbnailAI génère des miniatures YouTube professionnelles à partir
-            d&apos;une description textuelle, en utilisant le modèle{" "}
-            <code className="px-1.5 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-800 text-xs font-mono text-neutral-700 dark:text-neutral-300">
-              gemini-3-pro-image-preview
-            </code>{" "}
-            de Google.
-          </p>
-
-          {/* Steps */}
+        <div className="px-6 py-5 space-y-6 overflow-y-auto custom-scrollbar">
+          {/* Section 1: Fonctionnement */}
           <div className="space-y-3">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-600">
-              Comment utiliser
-            </h3>
-            <div className="space-y-2.5">
-              {[
-                {
-                  icon: <ImageIcon className="w-3.5 h-3.5" />,
-                  step: "1",
-                  title: "Images de référence (optionnel)",
-                  desc: "Ajoutez des images pour guider le style, l'inspiration ou les personnes à inclure. Glissez-déposez ou cliquez.",
-                },
-                {
-                  icon: <Sparkles className="w-3.5 h-3.5" />,
-                  step: "2",
-                  title: "Décrivez votre miniature",
-                  desc: 'Soyez précis : sujet, ambiance, couleurs, style. Ex : "Homme choqué devant un graphique qui monte, fond rouge, style cinématique".',
-                },
-                {
-                  icon: <Users className="w-3.5 h-3.5" />,
-                  step: "3",
-                  title: "Choisissez le nombre & le ratio",
-                  desc: "Générez 1 à 4 miniatures en 16:9, 9:16 (Shorts) ou 1:1 (Community). ~30s par image (génération séquentielle).",
-                },
-                {
-                  icon: <Zap className="w-3.5 h-3.5" />,
-                  step: "4",
-                  title: "Générez & téléchargez",
-                  desc: "Cliquez sur Générer ou Ctrl+Entrée. Survolez une miniature pour la zoomer, télécharger ou régénérer individuellement.",
-                },
-              ].map((item) => (
-                <div key={item.step} className="flex gap-3">
-                  <div
-                    className={cn(
-                      "mt-0.5 w-6 h-6 rounded-md shrink-0 flex items-center justify-center",
-                      "bg-neutral-100 dark:bg-neutral-800",
-                      "text-neutral-500 dark:text-neutral-400"
-                    )}
-                  >
-                    {item.icon}
+             <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 dark:text-neutral-500">Flux de travail</h3>
+             <div className="grid grid-cols-1 gap-4">
+                {[
+                  { icon: <ImageIcon className="w-4 h-4" />, title: "Contexte visuel", desc: "Uploadez des visages ou styles pour guider l'IA." },
+                  { icon: <Sparkles className="w-4 h-4" />, title: "Prompt Magique", desc: "Décrivez l'ambiance, les couleurs et le sujet." },
+                  { icon: <Zap className="w-4 h-4" />, title: "Parallélisme", desc: "Génération simultanée de plusieurs variantes." }
+                ].map((item, i) => (
+                  <div key={i} className="flex gap-4 p-3 rounded-xl bg-neutral-50 dark:bg-white/3 border border-neutral-100 dark:border-white/5">
+                    <div className="w-8 h-8 rounded-lg bg-white dark:bg-white/5 flex items-center justify-center shrink-0 shadow-sm">
+                      {item.icon}
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold dark:text-white">{item.title}</p>
+                      <p className="text-[11px] text-neutral-500 mt-0.5">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+             </div>
+          </div>
+
+          {/* Section 2: Outils Studio */}
+          <div className="space-y-3">
+             <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500">Outils de conversion (CTR)</h3>
+             <div className="space-y-3">
+                <div className="flex gap-4">
+                  <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-100 dark:border-indigo-900/50">
+                    <Swords className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-semibold text-neutral-800 dark:text-neutral-200">
-                      {item.title}
-                    </p>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-500 mt-0.5 leading-relaxed">
-                      {item.desc}
+                    <p className="text-xs font-bold dark:text-white">IA CTR Predictor (A/B Test)</p>
+                    <p className="text-[11px] text-neutral-500 mt-0.5 line-height-relaxed">
+                      Sélectionnez deux miniatures avec l&apos;icône ⚔️. L&apos;IA simulera le comportement des spectateurs pour déterminer laquelle aura le meilleur taux de clic.
                     </p>
                   </div>
                 </div>
-              ))}
-            </div>
+
+                <div className="flex gap-4">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-100 dark:border-emerald-900/50">
+                    <Type className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold dark:text-white">Générateur de Titres IA</p>
+                    <p className="text-[11px] text-neutral-500 mt-0.5">
+                      Analyse visuelle de votre miniature pour suggérer 5 titres &quot;putaclic&quot; mais honnêtes, optimisés pour l&apos;algorithme.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <div className="w-8 h-8 rounded-lg bg-orange-50 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 flex items-center justify-center shrink-0 border border-orange-100 dark:border-orange-900/50">
+                    <Monitor className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold dark:text-white">Simulateur In-Situ</p>
+                    <p className="text-[11px] text-neutral-500 mt-0.5">
+                      Visualisez votre création directement dans le flux YouTube Desktop et Mobile pour tester la lisibilité et le contraste.
+                    </p>
+                  </div>
+                </div>
+             </div>
           </div>
 
           {/* Warning */}
-          <div
-            className={cn(
-              "flex gap-2.5 p-3 rounded-xl",
-              "bg-amber-50 dark:bg-amber-950/30",
-              "border border-amber-200 dark:border-amber-900/50"
-            )}
-          >
-            <AlertTriangle className="w-4 h-4 text-amber-500 dark:text-amber-400 shrink-0 mt-0.5" />
-            <div className="space-y-0.5">
-              <p className="text-xs font-semibold text-amber-700 dark:text-amber-400">
-                Quota API
-              </p>
-              <p className="text-xs text-amber-600 dark:text-amber-500 leading-relaxed">
-                Le free tier Gemini est limité. En cas d&apos;erreur 429,
-                attendez ~1 minute avant de réessayer. Préférez générer 1 image
-                à la fois.
+          <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 flex gap-4">
+            <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />
+            <div className="space-y-1">
+              <p className="text-xs font-bold text-amber-700 dark:text-amber-400">Quota & Limites</p>
+              <p className="text-[11px] text-amber-600 dark:text-amber-500 leading-relaxed">
+                Le modèle Gemini Free Tier est limité par minute. Si la génération échoue, attendez 60s. Le mode démo (Play) permet de tester l&apos;interface sans consommer de quota.
               </p>
             </div>
           </div>
@@ -195,18 +185,9 @@ export function InfoModal() {
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3 border-t border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950/50 shrink-0">
-          <p className="text-xs text-neutral-400 dark:text-neutral-600 text-center">
-            Propulsé par{" "}
-            <a
-              href="https://ai.google.dev"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline underline-offset-2 hover:text-neutral-600 dark:hover:text-neutral-400 transition-colors"
-            >
-              Google Gemini API
-            </a>{" "}
-            · gemini-3-pro-image-preview
+        <div className="px-6 py-4 border-t border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950/50 shrink-0">
+          <p className="text-[10px] text-neutral-400 dark:text-neutral-600 text-center uppercase tracking-[0.3em] font-black">
+            ThumbnailAI Studio · v1.2
           </p>
         </div>
       </div>
@@ -215,12 +196,11 @@ export function InfoModal() {
 
   return (
     <>
-      {/* Trigger */}
       <button
         onClick={() => setOpen(true)}
         aria-label="Informations sur l'application"
         className={cn(
-          "w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200",
+          "w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-200 outline-none focus-visible:ring-2 ring-indigo-500",
           "border border-neutral-200 dark:border-neutral-700",
           "bg-white dark:bg-neutral-900",
           "hover:bg-neutral-50 dark:hover:bg-neutral-800",
@@ -230,7 +210,6 @@ export function InfoModal() {
         <Info className="w-4 h-4" />
       </button>
 
-      {/* Portal — rendu dans document.body pour échapper au header sticky */}
       {mounted && createPortal(modal, document.body)}
     </>
   );
