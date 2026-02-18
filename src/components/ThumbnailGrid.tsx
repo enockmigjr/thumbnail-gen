@@ -12,18 +12,16 @@ import {
   Play, 
   Type, 
   Swords,
-  Trophy,
-  CheckCircle2,
   Sparkles,
   Bot,
   ChevronRight,
-  Copy,
-  PlusSquare
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import JSZip from "jszip";
 import { YouTubePreviewModal } from "./YouTubePreviewModal";
+import { AnalysisResultModal } from "./AnalysisResultModal";
+import { TitlesModal } from "./TitlesModal";
 import { toast } from "sonner";
 
 interface ThumbnailGridProps {
@@ -70,11 +68,15 @@ export function ThumbnailGrid({
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
   const [isZipping, setIsZipping] = useState(false);
   
-  // New States
+  // Modals States
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState<string>("");
   const [previewTitle, setPreviewTitle] = useState<string>("");
   
+  const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState(false);
+  const [isTitlesModalOpen, setIsTitlesModalOpen] = useState(false);
+  const [currentTitlesData, setCurrentTitlesData] = useState<{titles: string[], image: string} | null>(null);
+
   const [isAnalyzingTitles, setIsAnalyzingTitles] = useState<number | null>(null);
   const [titlesByImage, setTitlesByImage] = useState<Record<number, string[]>>({});
   
@@ -130,7 +132,9 @@ export function ThumbnailGrid({
       const data = await response.json();
       if (data.titles) {
         setTitlesByImage(prev => ({ ...prev, [index]: data.titles }));
-        toast.success("5 titres suggérés !");
+        setCurrentTitlesData({ titles: data.titles, image: images[index].data });
+        setIsTitlesModalOpen(true);
+        toast.success("Titres générés !");
       }
     } catch {
       toast.error("Échec de la génération des titres");
@@ -142,7 +146,7 @@ export function ThumbnailGrid({
   const startComparison = async () => {
     if (selectedForComparison.length !== 2) return;
     setIsComparing(true);
-    setAnalysisResult(null); // Clear previous
+    setAnalysisResult(null);
     try {
       const response = await fetch("/api/analyze", {
         method: "POST",
@@ -155,6 +159,7 @@ export function ThumbnailGrid({
       const data = await response.json();
       if (data.analysis) {
         setAnalysisResult(data.analysis);
+        setIsAnalysisModalOpen(true);
       }
     } catch {
       toast.error("Échec de l'analyse A/B");
@@ -187,14 +192,14 @@ export function ThumbnailGrid({
       <div className="flex items-center justify-between px-1">
         <div className="flex items-center gap-4">
            {selectedForComparison.length > 0 && (
-             <div className="flex items-center gap-4 p-2 pl-4 rounded-2xl bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/30 animate-in slide-in-from-left-4">
+             <div className="flex items-center gap-4 p-2 pl-4 rounded-2xl bg-neutral-100 dark:bg-white/5 border border-neutral-200 dark:border-white/10 animate-in slide-in-from-left-4">
                 <div className="flex items-center gap-2">
-                   <Swords className="w-4 h-4 text-indigo-500" />
+                   <Swords className="w-4 h-4 text-emerald-500" />
                    <span className="text-[10px] font-black uppercase tracking-wider text-neutral-400 dark:text-neutral-500">Selection A/B</span>
                 </div>
                 <div className="flex -space-x-2.5">
                   {selectedForComparison.map(idx => (
-                    <div key={idx} className="w-8 h-8 rounded-full border-2 border-white dark:border-neutral-950 bg-neutral-200 overflow-hidden relative shadow-sm ring-1 ring-indigo-500/20">
+                    <div key={idx} className="w-8 h-8 rounded-full border-2 border-white dark:border-neutral-950 bg-neutral-200 overflow-hidden relative shadow-sm ring-1 ring-emerald-500/20">
                       <Image src={`data:${images[idx].mediaType};base64,${images[idx].data}`} fill alt="選" className="object-cover" />
                     </div>
                   ))}
@@ -209,7 +214,7 @@ export function ThumbnailGrid({
                     size="sm" 
                     onClick={startComparison}
                     disabled={isComparing}
-                    className="h-8 text-[10px] font-black uppercase tracking-widest bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl px-4 shadow-lg shadow-indigo-600/20 active:scale-95 transition-all"
+                    className="h-8 text-[10px] font-black uppercase tracking-widest bg-black dark:bg-white text-white dark:text-black hover:opacity-90 rounded-xl px-4 shadow-xl active:scale-95 transition-all"
                   >
                     {isComparing ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-2" /> : <Bot className="w-3.5 h-3.5 mr-2" />}
                     Prédire le CTR
@@ -237,69 +242,19 @@ export function ThumbnailGrid({
       
       {/* Comparison Loading State */}
       {isComparing && (
-        <div className="p-10 rounded-3xl bg-indigo-50/50 dark:bg-indigo-900/10 border border-indigo-100 dark:border-indigo-900/30 border-dashed animate-pulse flex flex-col items-center justify-center gap-4">
-           <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-xl animate-bounce">
+        <div className="p-10 rounded-3xl bg-neutral-50 dark:bg-white/2 border border-neutral-200 dark:border-white/5 border-dashed animate-pulse flex flex-col items-center justify-center gap-4">
+           <div className="w-12 h-12 rounded-2xl bg-black dark:bg-white flex items-center justify-center text-white dark:text-black shadow-xl animate-bounce">
               <Bot className="w-6 h-6" />
            </div>
            <div className="text-center space-y-1">
-              <p className="text-sm font-bold dark:text-white uppercase tracking-widest">Analyse IA en cours...</p>
-              <p className="text-[11px] text-neutral-500">L&apos;IA compare les stimuli visuels et la psychologie des couleurs</p>
+              <p className="text-sm font-bold dark:text-white uppercase tracking-widest">Analyse Vision Studio...</p>
+              <p className="text-[11px] text-neutral-500 font-medium">L&apos;IA décode les patterns visuels de votre audience</p>
            </div>
         </div>
       )}
 
-      {/* Comparison Result */}
-      {analysisResult && !isComparing && (
-        <div className="p-8 rounded-3xl bg-white dark:bg-[#121212] border border-indigo-100 dark:border-indigo-900/30 shadow-2xl shadow-indigo-500/5 animate-in zoom-in-95 duration-500">
-           <div className="flex items-center justify-between mb-8 pb-4 border-b border-neutral-100 dark:border-white/5">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-linear-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-xl shadow-indigo-600/30">
-                  <Trophy className="w-6 h-6" />
-                </div>
-                <div>
-                  <h4 className="text-base font-black dark:text-white uppercase tracking-tight">Verdict de l&apos;IA Studio</h4>
-                  <p className="text-[11px] text-neutral-500 font-medium">Miniature #{selectedForComparison[analysisResult.winner - 1] + 1} est déclarée vainqueur</p>
-                </div>
-              </div>
-              <button onClick={() => setAnalysisResult(null)} className="p-2 hover:bg-neutral-100 dark:hover:bg-white/5 rounded-xl transition-colors">
-                <X className="w-5 h-5 text-neutral-400" />
-              </button>
-           </div>
-
-           <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
-              <div className="lg:col-span-3 space-y-6">
-                <div className="space-y-2">
-                   <h5 className="text-[10px] font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Raisonnement Stratégique</h5>
-                   <p className="text-[15px] leading-relaxed text-neutral-800 dark:text-neutral-200 font-medium">
-                     {analysisResult.reasoning}
-                   </p>
-                </div>
-                
-                <div className="flex gap-4 p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30">
-                   <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0" />
-                   <p className="text-[13px] text-emerald-700 dark:text-emerald-400 font-medium">Recommandation : Utilisez cette version pour votre vidéo principale et gardez l&apos;autre pour un test communautaire.</p>
-                </div>
-              </div>
-              
-              <div className="lg:col-span-2 space-y-4">
-                <h5 className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Analyse Comparative</h5>
-                <div className="grid grid-cols-1 gap-3">
-                  {Object.entries(analysisResult.comparison).map(([key, val]: [string, string]) => (
-                    <div key={key} className="p-4 rounded-2xl bg-neutral-50 dark:bg-white/3 border border-neutral-100 dark:border-white/5 transition-all hover:border-neutral-200 dark:hover:border-white/10 group">
-                      <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-[11px] font-black uppercase tracking-widest text-neutral-400 group-hover:text-indigo-500 transition-colors">{key}</span>
-                        <ChevronRight className="w-3 h-3 text-neutral-300" />
-                      </div>
-                      <p className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed">{val}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-           </div>
-        </div>
-      )}
-
-      <div className={cn("grid gap-6", gridClass)}>
+      {/* Grid of Thumbnails */}
+      <div className={cn("grid gap-8", gridClass)}>
         {isLoading && images.length === 0 &&
           Array.from({ length: 2 }).map((_, i) => <SkeletonCard key={i} ratio={aspectRatio} />)}
 
@@ -315,17 +270,17 @@ export function ThumbnailGrid({
                 className={cn(
                   "group relative rounded-2xl overflow-hidden shadow-sm transition-all duration-500",
                   "border border-neutral-200 dark:border-neutral-800",
-                  "hover:border-indigo-400 dark:hover:border-indigo-500/50",
-                  "hover:shadow-2xl hover:shadow-indigo-500/20",
-                  isSelected && "ring-4 ring-indigo-500 ring-offset-4 dark:ring-offset-neutral-950 scale-[1.02]",
+                  "hover:border-neutral-400 dark:hover:border-neutral-500",
+                  "hover:shadow-2xl",
+                  isSelected && "ring-2 ring-black dark:ring-white ring-offset-4 dark:ring-offset-neutral-950 scale-[1.02]",
                   aspectClass
                 )}
               >
                 {isRegenerating ? (
                   <div className="absolute inset-0 bg-neutral-100 dark:bg-[#0f0f0f] flex items-center justify-center">
                     <div className="flex flex-col items-center gap-3">
-                      <div className="w-12 h-12 rounded-2xl bg-white dark:bg-white/5 flex items-center justify-center shadow-lg">
-                        <Loader2 className="w-6 h-6 animate-spin text-indigo-500" />
+                      <div className="w-12 h-12 rounded-2xl bg-white dark:bg-white/5 flex items-center justify-center shadow-lg text-emerald-500">
+                        <Loader2 className="w-6 h-6 animate-spin" />
                       </div>
                       <span className="text-[10px] font-black uppercase tracking-[0.3em] text-neutral-400">Régénération</span>
                     </div>
@@ -349,7 +304,7 @@ export function ThumbnailGrid({
                           className={cn(
                             "w-10 h-10 rounded-xl flex items-center justify-center backdrop-blur-xl border transition-all shadow-xl active:scale-90",
                             isSelected 
-                              ? "bg-indigo-600 border-indigo-400 text-white" 
+                              ? "bg-black dark:bg-white border-white dark:border-black text-white dark:text-black" 
                               : "bg-black/40 border-white/20 text-white hover:bg-white/20"
                           )}
                           title="Comparer (A/B Test)"
@@ -378,10 +333,10 @@ export function ThumbnailGrid({
                     <div className="absolute bottom-4 left-4 right-4 flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
                         <Button
                           size="sm"
-                          className="h-10 flex-1 text-[11px] font-black uppercase tracking-widest bg-white text-neutral-900 hover:bg-neutral-100 rounded-xl shadow-2xl active:scale-95"
+                          className="h-10 flex-1 text-[11px] font-black uppercase tracking-widest bg-white text-neutral-900 hover:opacity-90 rounded-xl shadow-2xl active:scale-95"
                           onClick={() => downloadImage(img.data, img.mediaType, index)}
                         >
-                          <Download className="w-4 h-4 mr-2 text-indigo-500" />
+                          <Download className="w-4 h-4 mr-2 text-emerald-500" />
                           Download
                         </Button>
                         
@@ -413,7 +368,7 @@ export function ThumbnailGrid({
                     onClick={() => generateTitles(index)}
                     className={cn(
                       "h-10 w-full text-[11px] font-black uppercase tracking-widest border border-dashed border-neutral-200 dark:border-neutral-800 rounded-xl transition-all group/btn",
-                      isAnalyzing ? "bg-neutral-50 dark:bg-white/5 cursor-wait" : "hover:bg-indigo-50 dark:hover:bg-indigo-900/10 hover:border-indigo-200 dark:hover:border-indigo-800 text-neutral-400 hover:text-indigo-600 dark:hover:text-indigo-400"
+                      isAnalyzing ? "bg-neutral-50 dark:bg-white/5 cursor-wait" : "hover:bg-neutral-50 dark:hover:bg-white/5 hover:border-neutral-300 dark:hover:border-neutral-700 text-neutral-400 hover:text-black dark:hover:text-white"
                     )}
                  >
                     {isAnalyzing ? (
@@ -424,45 +379,48 @@ export function ThumbnailGrid({
                     Générer des titres IA
                  </Button>
 
-                 {/* TITLES LIST (With Skeleton) */}
-                 {isAnalyzing && (
-                    <div className="space-y-2 p-4 rounded-2xl bg-neutral-50 dark:bg-white/2 border border-neutral-100 dark:border-white/5">
-                        <div className="h-3 bg-neutral-200 dark:bg-white/10 rounded-full w-1/3 animate-pulse mb-4" />
-                        {[...Array(3)].map((_, i) => (
-                           <div key={i} className="h-4 bg-neutral-200 dark:bg-white/10 rounded-full w-full animate-pulse" />
-                        ))}
-                    </div>
-                 )}
-
+                 {/* TITLES INLINE (Mini list) */}
                  {titles && !isAnalyzing && (
                     <div className="p-4 rounded-2xl bg-white dark:bg-[#121212] border border-neutral-100 dark:border-white/5 shadow-sm space-y-3 animate-in fade-in slide-in-from-top-2 duration-500">
-                       <div className="flex items-center justify-between">
+                       <button 
+                         className="flex items-center justify-between w-full group/h"
+                         onClick={() => {
+                            setCurrentTitlesData({ titles, image: img.data });
+                            setIsTitlesModalOpen(true);
+                         }}
+                       >
                           <div className="flex items-center gap-2">
-                            <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Titres optimisés CTR</span>
+                            <Sparkles className="w-3.5 h-3.5 text-emerald-500" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Titres IA</span>
                           </div>
-                          <Bot className="w-3.5 h-3.5 text-neutral-300" />
-                       </div>
+                          <ChevronRight className="w-3 h-3 text-neutral-300 group-hover/h:translate-x-1 transition-transform" />
+                       </button>
                        <div className="space-y-2">
-                         {titles.map((t, i) => (
+                         {titles.slice(0, 2).map((t, i) => (
                            <button 
                              key={i} 
-                             className="group/t flex items-start gap-3 w-full p-2.5 rounded-xl text-left transition-all hover:bg-neutral-50 dark:hover:bg-white/5 border border-transparent hover:border-neutral-100 dark:hover:border-white/5"
+                             className="group/t flex items-start gap-3 w-full p-2 rounded-xl text-left transition-all hover:bg-neutral-50 dark:hover:bg-white/5"
                              onClick={() => {
                                navigator.clipboard.writeText(t);
-                               toast.success("Titre copié dans le presse-papier");
-                               setPreviewTitle(t);
+                               toast.success("Copié !");
                              }}
                            >
-                              <div className="w-5 h-5 rounded-lg bg-neutral-100 dark:bg-white/5 flex items-center justify-center shrink-0 group-hover/t:bg-emerald-100 dark:group-hover/t:bg-emerald-900/30 group-hover/t:text-emerald-600 transition-colors">
-                                 <PlusSquare className="w-3 h-3" />
-                              </div>
-                              <p className="text-[13px] text-neutral-600 dark:text-neutral-300 font-medium leading-normal line-clamp-2">
+                              <p className="text-[12px] text-neutral-500 dark:text-neutral-400 font-medium leading-tight line-clamp-1">
                                 {t}
                               </p>
-                              <Copy className="w-3 h-3 text-neutral-300 ml-auto opacity-0 group-hover/t:opacity-100 transition-all" />
                            </button>
                          ))}
+                         {titles.length > 2 && (
+                           <button 
+                             className="text-[10px] font-bold text-emerald-500 hover:underline px-2"
+                             onClick={() => {
+                                setCurrentTitlesData({ titles, image: img.data });
+                                setIsTitlesModalOpen(true);
+                             }}
+                           >
+                             Voir les {titles.length} suggestions →
+                           </button>
+                         )}
                        </div>
                     </div>
                  )}
@@ -483,14 +441,14 @@ export function ThumbnailGrid({
           </button>
           <div className={cn("relative w-full max-w-6xl rounded-3xl overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.5)] border border-white/10", aspectClass)} onClick={(e) => e.stopPropagation()}>
             <Image src={lightboxSrc} alt="Vision HD" fill className="object-contain" />
-            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 rounded-2xl bg-black/60 backdrop-blur-xl border border-white/10 text-white text-xs font-black uppercase tracking-widest flex items-center gap-3">
-               <Bot className="w-4 h-4 text-indigo-400" /> Rendement HD Studio
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 rounded-2xl bg-black/60 backdrop-blur-xl border border-white/10 text-white text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-3">
+               <Bot className="w-4 h-4 text-emerald-400" /> Rendement HD Studio
             </div>
           </div>
         </div>
       )}
 
-      {/* YouTube Preview Modal */}
+      {/* MODALS */}
       <YouTubePreviewModal 
         isOpen={isPreviewOpen} 
         onClose={() => setIsPreviewOpen(false)} 
@@ -498,6 +456,24 @@ export function ThumbnailGrid({
         aspectRatio={aspectRatio}
         title={previewTitle}
       />
+
+      <AnalysisResultModal 
+        isOpen={isAnalysisModalOpen}
+        onClose={() => setIsAnalysisModalOpen(false)}
+        result={analysisResult}
+        images={selectedForComparison.map(idx => images[idx].data)}
+        indices={selectedForComparison}
+      />
+
+      {currentTitlesData && (
+        <TitlesModal 
+          isOpen={isTitlesModalOpen}
+          onClose={() => setIsTitlesModalOpen(false)}
+          titles={currentTitlesData.titles}
+          image={currentTitlesData.image}
+          aspectRatio={aspectRatio}
+        />
+      )}
     </div>
   );
 }
