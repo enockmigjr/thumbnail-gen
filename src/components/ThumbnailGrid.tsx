@@ -119,6 +119,7 @@ export function ThumbnailGrid({
 
   const generateTitles = async (index: number) => {
     setIsAnalyzingTitles(index);
+    toast.info("Analyse IA des titres lancée...");
     try {
       const response = await fetch("/api/analyze", {
         method: "POST",
@@ -130,14 +131,22 @@ export function ThumbnailGrid({
         }),
       });
       const data = await response.json();
-      if (data.titles) {
+      
+      if (!response.ok) {
+        throw new Error(data.error || "Erreur lors de l'analyse");
+      }
+
+      if (data.titles && Array.isArray(data.titles)) {
         setTitlesByImage(prev => ({ ...prev, [index]: data.titles }));
         setCurrentTitlesData({ titles: data.titles, image: images[index].data });
         setIsTitlesModalOpen(true);
-        toast.success("Titres générés !");
+        toast.success("5 suggestions de titres générées !");
+      } else {
+        throw new Error("Aucun titre n'a pu être généré");
       }
-    } catch {
-      toast.error("Échec de la génération des titres");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Échec de la génération des titres";
+      toast.error(message);
     } finally {
       setIsAnalyzingTitles(null);
     }
@@ -147,6 +156,7 @@ export function ThumbnailGrid({
     if (selectedForComparison.length !== 2) return;
     setIsComparing(true);
     setAnalysisResult(null);
+    toast.info("L'IA compare les miniatures...");
     try {
       const response = await fetch("/api/analyze", {
         method: "POST",
@@ -157,12 +167,21 @@ export function ThumbnailGrid({
         }),
       });
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Erreur lors de la comparaison");
+      }
+
       if (data.analysis) {
         setAnalysisResult(data.analysis);
         setIsAnalysisModalOpen(true);
+        toast.success("Verdicte de l'IA prêt !");
+      } else {
+        throw new Error("L'analyse n'a pas pu être finalisée");
       }
-    } catch {
-      toast.error("Échec de l'analyse A/B");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Échec de l'analyse A/B";
+      toast.error(message);
     } finally {
       setIsComparing(false);
     }
