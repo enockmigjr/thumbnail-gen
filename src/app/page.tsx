@@ -7,17 +7,17 @@ import {
   Minus, 
   Plus, 
   Loader2, 
-  History as HistoryIcon, 
-  Trash2, 
   Smartphone, 
   Monitor, 
   Square,
+  Play
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DropZone } from "@/components/DropZone";
 import { ThumbnailGrid } from "@/components/ThumbnailGrid";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { InfoModal } from "@/components/InfoModal";
+import { HistoryModal } from "@/components/HistoryModal";
 import { Footer } from "@/components/Footer";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -58,11 +58,11 @@ export default function Home() {
   const [count, setCount] = useState(1);
   const [aspectRatio, setAspectRatio] = useState("16:9");
   const [isLoading, setIsLoading] = useState(false);
+  const [isDemoLoading, setIsDemoLoading] = useState(false);
   const [generatedImages, setGeneratedImages] = useState<GeneratedImage[]>([]);
   const [progress, setProgress] = useState(0);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [isRegeneratingIndex, setIsRegeneratingIndex] = useState<number | null>(null);
-  const [showHistory, setShowHistory] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Load history from localStorage
@@ -97,50 +97,74 @@ export default function Home() {
     toast.success("Historique effacé");
   };
 
-  const handleGenerate = async () => {
-    if (!prompt.trim()) {
+  const handleGenerate = async (isDemo = false) => {
+    if (!prompt.trim() && !isDemo) {
       toast.error("Veuillez entrer une description");
       return;
     }
 
-    setIsLoading(true);
+    if (isDemo) setIsDemoLoading(true);
+    else setIsLoading(true);
+    
     setGeneratedImages([]);
     setProgress(0);
 
-    // Simuler la progression pendant la génération séquentielle
-    const totalTime = count * 20000; // ~20s par image
+    // En parallèle, le temps total est celui d'une image (~30s)
+    const totalTime = 30000;
     const interval = setInterval(() => {
       setProgress((p) => Math.min(p + (100 / (totalTime / 500)), 92));
     }, 500);
 
     try {
-      const allImages = [...extraImages, ...inspirationImages, ...personImages];
+      if (isDemo) {
+        // Mode Démo : images simulées depuis internet
+        await new Promise(r => setTimeout(r, 2000)); // Simuler un délai
+        const demoImages: GeneratedImage[] = [];
+        
+        for (let i = 0; i < count; i++) {
+          const res = await fetch(`https://picsum.photos/1280/720?random=${Math.random()}`);
+          const blob = await res.blob();
+          const buffer = await blob.arrayBuffer();
+          const base64 = Buffer.from(buffer).toString('base64');
+          demoImages.push({
+            data: base64,
+            mediaType: "image/jpeg"
+          });
+        }
+        
+        setGeneratedImages(demoImages);
+        setProgress(100);
+        toast.success("Démo : Images récupérées avec succès !");
+      } else {
+        const allImages = [...extraImages, ...inspirationImages, ...personImages];
 
-      const response = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt: prompt.trim(),
-          images: allImages,
-          count,
-          aspectRatio,
-        }),
-      });
+        const response = await fetch("/api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            prompt: prompt.trim(),
+            images: allImages,
+            count,
+            aspectRatio,
+          }),
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (!response.ok) throw new Error(data.error || "Erreur lors de la génération");
-      if (!data.images || data.images.length === 0) throw new Error("Aucune image générée");
+        if (!response.ok) throw new Error(data.error || "Erreur lors de la génération");
+        if (!data.images || data.images.length === 0) throw new Error("Aucune image générée");
 
-      setProgress(100);
-      setGeneratedImages(data.images);
-      saveToHistory(data.images, prompt.trim(), aspectRatio);
-      toast.success(`${data.images.length} miniature(s) générée(s) !`);
+        setProgress(100);
+        setGeneratedImages(data.images);
+        saveToHistory(data.images, prompt.trim(), aspectRatio);
+        toast.success(`${data.images.length} miniature(s) générée(s) !`);
+      }
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Une erreur est survenue");
     } finally {
       clearInterval(interval);
       setIsLoading(false);
+      setIsDemoLoading(false);
     }
   };
 
@@ -166,9 +190,9 @@ export default function Home() {
       newImages[index] = data.images[0];
       setGeneratedImages(newImages);
       
-      // Update history
+      // Update history if this set is in history
       const updatedHistory = history.map(item => {
-        if (item.images === generatedImages) {
+        if (JSON.stringify(item.images) === JSON.stringify(generatedImages)) {
            return { ...item, images: newImages };
         }
         return item;
@@ -184,12 +208,6 @@ export default function Home() {
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
-      handleGenerate();
-    }
-  };
-
   const useHistoryItem = (item: HistoryItem) => {
     setPrompt(item.prompt);
     setGeneratedImages(item.images);
@@ -197,6 +215,12 @@ export default function Home() {
     setCount(item.images.length);
     window.scrollTo({ top: 0, behavior: "smooth" });
     toast.info("Génération restaurée depuis l'historique");
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+      handleGenerate();
+    }
   };
 
   return (
@@ -218,15 +242,11 @@ export default function Home() {
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
               Gemini 3 Pro
             </span>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-neutral-500"
-              onClick={() => setShowHistory(!showHistory)}
-              title="Historique"
-            >
-              <HistoryIcon className="w-4 h-4" />
-            </Button>
+            <HistoryModal 
+              history={history} 
+              onClear={clearHistory} 
+              onUseItem={useHistoryItem} 
+            />
             <InfoModal />
             <ThemeToggle />
           </div>
@@ -243,7 +263,7 @@ export default function Home() {
 
         {/* Upload ZONES */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <DropZone label="Images suppremetaires" description="Contexte" multiple maxFiles={4} onFilesChange={setExtraImages} />
+          <DropZone label="Images supplémentaires" description="Contexte" multiple maxFiles={4} onFilesChange={setExtraImages} />
           <DropZone label="Inspiration" description="Style" maxFiles={1} onFilesChange={setInspirationImages} />
           <DropZone label="Personnes" description="Visages" multiple maxFiles={3} onFilesChange={setPersonImages} />
         </div>
@@ -286,7 +306,11 @@ export default function Home() {
                 rows={3}
               />
               <div className="flex items-center justify-between px-4 py-2.5 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50">
-                <span className="text-[10px] font-medium text-neutral-400 dark:text-neutral-500">CTRL+ENTER POUR GÉNÉRER</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold text-neutral-400 dark:text-neutral-600 uppercase tracking-tight">CTRL+ENTER</span>
+                  <div className="h-3 w-px bg-neutral-200 dark:bg-neutral-800" />
+                  <span className="text-[10px] font-medium text-neutral-400 dark:text-neutral-500">VOUS INSPIREZ ? CLIQUEZ SUR UNE SUGGESTION</span>
+                </div>
                 <span className={cn("text-[10px] font-mono tabular-nums", prompt.length > 800 ? "text-red-500" : "text-neutral-400")}>
                   {prompt.length}/1000
                 </span>
@@ -300,7 +324,7 @@ export default function Home() {
               <button
                 key={s}
                 onClick={() => setPrompt(s)}
-                className="px-2.5 py-1 rounded-full text-[10px] font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors"
+                className="px-2.5 py-1 rounded-full text-[10px] font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors border border-transparent hover:border-neutral-300 dark:hover:border-neutral-700 shadow-sm"
               >
                 {s}
               </button>
@@ -323,7 +347,7 @@ export default function Home() {
                 {[1, 2, 3, 4].map(n => (
                   <button key={n} onClick={() => setCount(n)} className={cn(
                     "w-8 h-7 rounded-lg text-xs font-bold transition-all",
-                    count === n ? "bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900" : "bg-white dark:bg-neutral-800 text-neutral-400 border border-neutral-200 dark:border-neutral-700"
+                    count === n ? "bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900 border-transparent shadow-md" : "bg-white dark:bg-neutral-800 text-neutral-400 border border-neutral-200 dark:border-neutral-700"
                   )}>{n}</button>
                 ))}
               </div>
@@ -334,25 +358,44 @@ export default function Home() {
                 <Plus className="w-3 h-3 text-neutral-500" />
               </button>
             </div>
-            {count > 1 && <span className="text-[10px] font-mono text-neutral-400">~{30}s</span>}
+            <span className="text-[10px] font-mono text-neutral-400 uppercase tracking-tighter">~30s</span>
           </div>
 
-          {/* Generate */}
-          <Button
-            onClick={handleGenerate}
-            disabled={isLoading || !prompt.trim()}
-            className="h-9 px-5 rounded-xl bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 hover:opacity-90 transition-opacity font-semibold shadow-lg shadow-neutral-900/10 dark:shadow-neutral-100/10"
-          >
-            {isLoading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Génération...</> : <><Sparkles className="w-4 h-4 mr-2" />Générer</>}
-          </Button>
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            {/* DEMO BUTTON */}
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => handleGenerate(true)}
+              disabled={isLoading || isDemoLoading}
+              title="Mode Démo (Génère des images aléatoires)"
+              className={cn(
+                "h-9 w-9 min-w-[40px] rounded-xl border-neutral-200 dark:border-neutral-800",
+                isDemoLoading && "animate-pulse"
+              )}
+            >
+              {isDemoLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+            </Button>
+
+            <Button
+              onClick={() => handleGenerate()}
+              disabled={isLoading || isDemoLoading || !prompt.trim()}
+              className="flex-1 sm:flex-none h-9 px-5 rounded-xl bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 hover:opacity-95 transition-all font-bold shadow-lg shadow-neutral-900/10 dark:shadow-neutral-100/10"
+            >
+              {(isLoading) ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Génération...</> : <><Sparkles className="w-4 h-4 mr-2" />Générer</>}
+            </Button>
+          </div>
         </div>
 
         {/* PROGRESS */}
-        {isLoading && (
+        {(isLoading || isDemoLoading) && (
           <div className="space-y-2.5">
-            <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-neutral-500">
-              <span>Génération en cours ({count}x)</span>
-              <span className="tabular-nums">{Math.round(progress)}%</span>
+            <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest text-neutral-500 items-center">
+              <span className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-neutral-900 dark:bg-white animate-pulse" />
+                {isDemoLoading ? "Simulation démo" : "Génération parallèle"} ({count}x)
+              </span>
+              <span className="tabular-nums font-mono">{Math.round(progress)}%</span>
             </div>
             <div className="h-1.5 w-full rounded-full bg-neutral-100 dark:bg-neutral-800 overflow-hidden">
               <div className="h-full bg-neutral-900 dark:bg-white transition-all duration-700 ease-out" style={{ width: `${progress}%` }} />
@@ -361,18 +404,18 @@ export default function Home() {
         )}
 
         {/* RESULTS */}
-        {(isLoading || generatedImages.length > 0) && (
+        {(isLoading || isDemoLoading || generatedImages.length > 0) && (
           <div className="space-y-6">
             <div className="flex items-center gap-4">
               <div className="h-px flex-1 bg-neutral-200 dark:bg-neutral-800" />
               <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500 whitespace-nowrap">
-                {isLoading ? "En cours de rendu" : "Dernière création"}
+                {isLoading || isDemoLoading ? "En cours de rendu" : "Dernière création"}
               </span>
               <div className="h-px flex-1 bg-neutral-200 dark:bg-neutral-800" />
             </div>
             <ThumbnailGrid 
               images={generatedImages} 
-              isLoading={isLoading} 
+              isLoading={isLoading || isDemoLoading} 
               aspectRatio={aspectRatio}
               onRegenerate={handleRegenerateSingle}
               isRegeneratingIndex={isRegeneratingIndex}
@@ -380,54 +423,11 @@ export default function Home() {
           </div>
         )}
 
-        {/* HISTORY SECTION */}
-        {showHistory && (
-          <div className="space-y-6 pt-10 border-t border-neutral-100 dark:border-neutral-900 animate-in fade-in slide-in-from-top-4 duration-500">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <HistoryIcon className="w-4 h-4 text-neutral-400" />
-                <h3 className="text-sm font-bold uppercase tracking-wider text-neutral-500">Historique</h3>
-              </div>
-              {history.length > 0 && (
-                <Button variant="ghost" size="sm" onClick={clearHistory} className="h-7 text-[10px] text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30">
-                  <Trash2 className="w-3 h-3 mr-1.5" /> Effacer tout
-                </Button>
-              )}
-            </div>
-
-            {history.length === 0 ? (
-              <div className="text-center py-10 border-2 border-dashed border-neutral-100 dark:border-neutral-900 rounded-2xl">
-                <p className="text-xs text-neutral-400">Aucun historique pour le moment.</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 gap-6">
-                {history.map(item => (
-                  <div key={item.id} className="group p-4 rounded-2xl border border-neutral-100 dark:border-neutral-900 bg-neutral-50/30 dark:bg-neutral-900/20 hover:border-neutral-200 dark:hover:border-neutral-800 transition-all">
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="space-y-1 max-w-[80%]">
-                        <p className="text-sm font-medium line-clamp-1">{item.prompt}</p>
-                        <div className="flex gap-2">
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500">{item.aspectRatio}</span>
-                          <span className="text-[10px] text-neutral-400">{new Date(item.timestamp).toLocaleString()}</span>
-                        </div>
-                      </div>
-                      <Button variant="outline" size="sm" onClick={() => useHistoryItem(item)} className="h-8 text-xs border-neutral-200 dark:border-neutral-800">
-                        Restaurer
-                      </Button>
-                    </div>
-                    <ThumbnailGrid images={item.images} aspectRatio={item.aspectRatio} />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
         {/* EMPTY STATE */}
-        {!isLoading && generatedImages.length === 0 && !showHistory && (
+        {!isLoading && !isDemoLoading && generatedImages.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 gap-6">
             <div className="relative">
-               <div className="w-20 h-20 rounded-3xl bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center border border-neutral-100 dark:border-neutral-800 shadow-sm">
+               <div className="w-20 h-20 rounded-[2rem] bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center border border-neutral-100 dark:border-neutral-800 shadow-sm transition-transform hover:scale-110 duration-500">
                 <Youtube className="w-10 h-10 text-neutral-300 dark:text-neutral-700" />
               </div>
               <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 flex items-center justify-center shadow-lg animate-bounce">
@@ -435,9 +435,9 @@ export default function Home() {
               </div>
             </div>
             <div className="text-center space-y-2">
-              <p className="text-sm font-bold text-neutral-800 dark:text-neutral-200 uppercase tracking-widest">Lancez votre création</p>
-              <p className="text-xs text-neutral-400 dark:text-neutral-600 max-w-[240px] leading-relaxed mx-auto">
-                Utilisez un prompt suggéré ou décrivez votre idée pour commencer.
+              <p className="text-sm font-bold text-neutral-900 dark:text-neutral-200 uppercase tracking-widest">Lancez votre création</p>
+              <p className="text-xs text-neutral-500 dark:text-neutral-500 max-w-[280px] leading-relaxed mx-auto">
+                Utilisez une suggestion ou décrivez votre idée. Testez le bouton <kbd className="px-1.5 py-0.5 rounded border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 font-mono text-[10px] ml-1">Play</kbd> pour une démo.
               </p>
             </div>
           </div>
