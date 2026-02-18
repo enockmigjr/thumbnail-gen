@@ -1,36 +1,110 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🚀 ThumbnailAI - Générateur de Miniatures YouTube Premium
 
-## Getting Started
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?style=flat-square&logo=next.js)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
+[![Gemini API](https://img.shields.io/badge/Google-Gemini_3_Pro-4285F4?style=flat-square&logo=google-gemini)](https://ai.google.dev/)
 
-First, run the development server:
+**ThumbnailAI** est une application web ultra-performante conçue pour les créateurs de contenu souhaitant générer des miniatures percutantes en quelques secondes grâce à l'intelligence artificielle de Google Gemini.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Domaines
+- thumbnail-gen-vert.vercel.app
+- thumbnail-gen-git-master-enockmigjrs-projects.vercel.app
+- thumbnail-5jaccwatd-enockmigjrs-projects.vercel.app
+---
+
+## ✨ Fonctionnalités Clés
+
+### 🧠 Intelligence Artificielle Avancée
+
+- **Google Gemini 3 Pro Vision** : Utilisation du dernier modèle multimodal pour une compréhension visuelle parfaite.
+- **Contexte Multiple** : Téléchargez des images d'inspiration, des visages ou des éléments de contexte pour guider l'IA.
+- **Rendu Parallèle** : Générez jusqu'à 4 miniatures simultanément pour un gain de temps maximal.
+
+### 🍱 Expérience Utilisateur Premium
+
+- **Interface style Vercel** : Un design propre, minimaliste et réactif (Dark/Light mode).
+- **Gestion des Ratios** :
+  - **16:9** (Standard YouTube)
+  - **9:16** (YouTube Shorts / TikTok)
+  - **1:1** (Post Communauté)
+- **Historique Local** : Retrouvez vos dernières créations dans un modal dédié (sauvegardées via LocalStorage).
+- **Régénération Individuelle** : Un résultat ne vous plaît pas ? Régénérez uniquement cette image.
+
+### 🛠️ Outils de Productivité
+
+- **Export ZIP** : Téléchargez l'ensemble de vos créations en un seul fichier compressé.
+- **Mode Démo** : Testez l'interface sans consommer votre quota API grâce à la simulation d'images.
+- **Suggestions Intelligentes** : Des prompts pré-configurés pour booster votre créativité.
+
+---
+
+## 🛠️ Installation & Configuration
+
+### Pré-requis
+
+- **Node.js 18+**
+- **pnpm** (recommandé)
+- Une clé API Google AI Studio ([Obtenir ici](https://aistudio.google.com/))
+
+### Étapes
+
+1. **Cloner le projet**
+
+   ```bash
+   git clone https://github.com/enockmigjr/thumbnail-gen.git
+   cd thumbnail-gen
+   ```
+
+2. **Installer les dépendances**
+
+   ```bash
+   pnpm install
+   ```
+
+3. **Variables d'environnement**
+   Créez un fichier `.env.local` à la racine :
+
+   ```env
+   GOOGLE_GENERATIVE_AI_API_KEY=votre_cle_api_ici
+   ```
+
+4. **Lancer le serveur de développement**
+   ```bash
+   pnpm dev
+   ```
+
+---
+
+## 🏗️ Architecture du Projet
+
+```text
+src/
+├── app/               # Routes Next.js & API
+│   └── api/generate   # Logique backend (Gemini API)
+├── components/        # Composants UI React
+│   ├── ui/            # Composants de base (Shadcn)
+│   ├── HistoryModal   # Gestion de l'historique
+│   ├── DropZone       # Upload glisser-déposer
+│   └── ThumbnailGrid  # Affichage des résultats
+├── lib/               # Utilitaires (cn, etc.)
+└── styles/            # Configuration CSS
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🎯 Feuille de Route (Prochaines Étapes)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- [ ] **Éditeur de texte** : Ajout de titres par-dessus les images.
+- [ ] **Suppression de fond** : Extraction automatique du sujet principal.
+- [ ] **Previews Réelles** : Simulation d'affichage sur l'interface YouTube.
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🤝 Contribution
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Les contributions sont les bienvenues ! N'hésitez pas à ouvrir une _Issue_ ou à soumettre une _Pull Request_.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 📄 Licence
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Ce projet est sous licence MIT. Fait avec ❤️ par [Enock Junior MIGNANWANDE](https://github.com/enockmigjr).
