@@ -433,6 +433,7 @@ export default function Home() {
               aspectRatio={aspectRatio}
               onRegenerate={handleRegenerateSingle}
               isRegeneratingIndex={isRegeneratingIndex}
+              userPrompt={prompt}
             />
           </div>
         )}
