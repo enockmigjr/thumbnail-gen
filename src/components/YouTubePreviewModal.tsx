@@ -79,7 +79,7 @@ export function YouTubePreviewModal({ image, aspectRatio, isOpen, onClose, title
       <div className="relative z-10 w-full max-w-[1600px] h-full flex flex-col bg-white dark:bg-[#0f0f0f] shadow-2xl border border-white/5 overflow-hidden">
         {/* TOP TOOLBAR (INTERNAL) */}
         <div className="flex items-center justify-between px-6 py-3 bg-white dark:bg-[#0f0f0f] border-b border-neutral-200 dark:border-white/10 shrink-0">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap">
             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 dark:text-neutral-500">YouTube Simulator</span>
             <div className="flex bg-neutral-100 dark:bg-white/5 p-1 rounded-xl border border-neutral-200 dark:border-white/5">
               <button 

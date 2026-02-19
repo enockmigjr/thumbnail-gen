@@ -5,6 +5,7 @@ import { useDropzone } from "react-dropzone";
 import Image from "next/image";
 import { X, Upload, ImagePlus } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 interface DropZoneProps {
   label: string;
@@ -25,18 +26,29 @@ export function DropZone({
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
+      const remainingSlots = maxFiles - previews.length;
+      if (remainingSlots <= 0) {
+        toast.error(`Limite de ${maxFiles} image(s) atteinte`);
+        return;
+      }
+
+      const filesToProcess = acceptedFiles.slice(0, remainingSlots);
+      if (acceptedFiles.length > remainingSlots) {
+        toast.warning(`Seules les ${remainingSlots} premières images ont été ajoutées (limite de ${maxFiles})`);
+      }
+
       const newPreviews: string[] = [];
       let processed = 0;
 
-      acceptedFiles.forEach((file) => {
+      filesToProcess.forEach((file) => {
         const reader = new FileReader();
         reader.onload = (e) => {
           const base64 = e.target?.result as string;
           newPreviews.push(base64);
           processed++;
-          if (processed === acceptedFiles.length) {
+          if (processed === filesToProcess.length) {
             const updated = multiple
-              ? [...previews, ...newPreviews].slice(0, maxFiles)
+              ? [...previews, ...newPreviews]
               : newPreviews.slice(0, 1);
             setPreviews(updated);
             onFilesChange(updated);
@@ -48,11 +60,16 @@ export function DropZone({
     [previews, multiple, maxFiles, onFilesChange]
   );
 
+  const onDropRejected = useCallback(() => {
+    toast.error(`Dépôt refusé. Limite : ${maxFiles} image(s) au format image.`);
+  }, [maxFiles]);
+
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
+    onDropRejected,
     accept: { "image/*": [".png", ".jpg", ".jpeg", ".webp", ".gif"] },
     multiple,
-    maxFiles,
+    maxFiles: multiple ? maxFiles : 1,
   });
 
   const removeImage = (index: number, e: React.MouseEvent) => {

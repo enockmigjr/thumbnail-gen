@@ -88,6 +88,9 @@ export function ThumbnailGrid({
     comparison: Record<string, string>;
   } | null>(null);
 
+  // Mobile accessibility state
+  const [activeCard, setActiveCard] = useState<number | null>(null);
+
   const downloadImage = (data: string, mediaType: string, index: number) => {
     const ext = mediaType.split("/")[1] || "png";
     const link = document.createElement("a");
@@ -286,12 +289,13 @@ export function ThumbnailGrid({
           return (
             <div key={index} className="space-y-4">
               <div
+                onClick={() => setActiveCard(activeCard === index ? null : index)}
                 className={cn(
-                  "group relative rounded-2xl overflow-hidden shadow-sm transition-all duration-500",
+                  "group relative rounded-2xl overflow-hidden shadow-sm transition-all duration-500 cursor-pointer",
                   "border border-neutral-200 dark:border-neutral-800",
                   "hover:border-neutral-400 dark:hover:border-neutral-500",
                   "hover:shadow-2xl",
-                  isSelected && "ring-2 ring-black dark:ring-white ring-offset-4 dark:ring-offset-neutral-950 scale-[1.02]",
+                  (isSelected) && "ring-2 ring-black dark:ring-white ring-offset-4 dark:ring-offset-neutral-950 scale-[1.02]",
                   aspectClass
                 )}
               >
@@ -314,12 +318,20 @@ export function ThumbnailGrid({
                     />
 
                     {/* Dark Overlay (Gradient) */}
-                    <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
+                    <div className={cn(
+                      "absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent transition-all duration-300",
+                      activeCard === index ? "opacity-100 pointer-events-auto" : "opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto"
+                    )} />
 
-                    {/* TOP ACTIONS (Hover) */}
-                    <div className="absolute top-4 left-4 right-4 flex justify-between items-start opacity-0 group-hover:opacity-100 transition-all duration-300 transform -translate-y-2 group-hover:translate-y-0">
+                    {/* TOP ACTIONS */}
+                    <div className={cn(
+                      "absolute top-4 left-4 right-4 flex justify-between items-start transition-all duration-300 transform",
+                      activeCard === index 
+                        ? "opacity-100 translate-y-0 pointer-events-auto" 
+                        : "opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto"
+                    )}>
                        <button
-                          onClick={() => toggleSelection(index)}
+                          onClick={(e) => { e.stopPropagation(); toggleSelection(index); }}
                           className={cn(
                             "w-10 h-10 rounded-xl flex items-center justify-center backdrop-blur-xl border transition-all shadow-xl active:scale-90",
                             isSelected 
@@ -333,14 +345,14 @@ export function ThumbnailGrid({
                         
                         <div className="flex gap-2">
                            <button
-                             onClick={() => openPreview(index)}
+                             onClick={(e) => { e.stopPropagation(); openPreview(index); }}
                              className="w-10 h-10 rounded-xl flex items-center justify-center bg-black/40 hover:bg-white/20 backdrop-blur-xl border border-white/20 text-white transition-all shadow-xl active:scale-90"
                              title="Simulator YouTube"
                            >
                               <Play className="w-5 h-5" />
                            </button>
                            <button
-                              onClick={() => setLightboxSrc(`data:${img.mediaType};base64,${img.data}`)}
+                              onClick={(e) => { e.stopPropagation(); setLightboxSrc(`data:${img.mediaType};base64,${img.data}`); }}
                               className="w-10 h-10 rounded-xl flex items-center justify-center bg-black/40 hover:bg-white/20 backdrop-blur-xl border border-white/20 text-white transition-all shadow-xl active:scale-90"
                            >
                               <ZoomIn className="w-5 h-5" />
@@ -348,12 +360,17 @@ export function ThumbnailGrid({
                         </div>
                     </div>
 
-                    {/* BOTTOM ACTIONS (Hover) */}
-                    <div className="absolute bottom-4 left-4 right-4 flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
+                    {/* BOTTOM ACTIONS */}
+                    <div className={cn(
+                      "absolute bottom-4 left-4 right-4 flex items-center gap-3 transition-all duration-300 transform",
+                      activeCard === index 
+                        ? "opacity-100 translate-y-0 pointer-events-auto" 
+                        : "opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 pointer-events-none group-hover:pointer-events-auto"
+                    )}>
                         <Button
                           size="sm"
                           className="h-10 flex-1 text-[11px] font-black uppercase tracking-widest bg-white text-neutral-900 hover:bg-white/90 hover:text-neutral-900 rounded-xl shadow-2xl active:scale-95"
-                          onClick={() => downloadImage(img.data, img.mediaType, index)}
+                          onClick={(e) => { e.stopPropagation(); downloadImage(img.data, img.mediaType, index); }}
                         >
                           <Download className="w-4 h-4 mr-2 text-emerald-500" />
                           Download
@@ -361,7 +378,7 @@ export function ThumbnailGrid({
                         
                         {onRegenerate && (
                           <button
-                            onClick={() => onRegenerate(index)}
+                            onClick={(e) => { e.stopPropagation(); onRegenerate(index); }}
                             className="w-10 h-10 rounded-xl flex items-center justify-center bg-black/40 hover:bg-white/20 backdrop-blur-xl border border-white/20 text-white transition-all active:scale-90 shadow-2xl"
                             title="Régénérer"
                           >
@@ -371,7 +388,10 @@ export function ThumbnailGrid({
                     </div>
 
                     {/* Label Badge */}
-                    <div className="absolute top-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-lg text-[10px] font-black bg-black/50 text-white/90 tracking-[0.2em] uppercase backdrop-blur-md border border-white/5 opacity-100 group-hover:opacity-0 transition-opacity">
+                    <div className={cn(
+                      "absolute top-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-lg text-[10px] font-black bg-black/50 text-white/90 tracking-[0.2em] uppercase backdrop-blur-md border border-white/5 transition-all opacity-100",
+                      (activeCard === index || isSelected) && "opacity-0 scale-95"
+                    )}>
                       Version {index + 1}
                     </div>
                   </>
