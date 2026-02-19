@@ -59,14 +59,14 @@ export function InfoModal() {
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100 dark:border-neutral-800 shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-neutral-900 dark:bg-white flex items-center justify-center">
-              <Sparkles className="w-3.5 h-3.5 text-white dark:text-neutral-900" />
+            <div className="w-8 h-8 rounded-lg bg-neutral-900 dark:bg-white flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-white dark:text-neutral-900" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+              <h2 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
                 ThumbnailAI Studio
               </h2>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">
+              <p className="text-sm text-neutral-500 dark:text-neutral-400">
                 Guide des outils IA avancés
               </p>
             </div>
@@ -74,7 +74,7 @@ export function InfoModal() {
           <button
             onClick={() => setOpen(false)}
             className={cn(
-              "w-7 h-7 rounded-lg flex items-center justify-center transition-colors",
+              "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
               "text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200",
               "hover:bg-neutral-100 dark:hover:bg-neutral-800"
             )}
@@ -86,8 +86,8 @@ export function InfoModal() {
         {/* Scrollable content */}
         <div className="px-6 py-5 space-y-6 overflow-y-auto custom-scrollbar">
           {/* Section 1: Fonctionnement */}
-          <div className="space-y-3">
-             <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 dark:text-neutral-500">Flux de travail</h3>
+          <div className="space-y-4">
+             <h3 className="text-sm font-black uppercase tracking-[0.2em] text-neutral-400 dark:text-neutral-500">Flux de travail</h3>
              <div className="grid grid-cols-1 gap-4">
                 {[
                   { icon: <ImageIcon className="w-4 h-4" />, title: "Contexte visuel", desc: "Uploadez des visages ou styles pour guider l'IA." },
@@ -99,8 +99,8 @@ export function InfoModal() {
                       {item.icon}
                     </div>
                     <div>
-                      <p className="text-xs font-bold dark:text-white">{item.title}</p>
-                      <p className="text-[11px] text-neutral-500 mt-0.5">{item.desc}</p>
+                      <p className="text-sm font-bold dark:text-white">{item.title}</p>
+                      <p className="text-xs text-neutral-500 mt-0.5">{item.desc}</p>
                     </div>
                   </div>
                 ))}
@@ -108,16 +108,16 @@ export function InfoModal() {
           </div>
 
           {/* Section 2: Outils Studio */}
-          <div className="space-y-3">
-             <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-500">Outils de conversion (CTR)</h3>
-             <div className="space-y-3">
+          <div className="space-y-4">
+             <h3 className="text-sm font-black uppercase tracking-[0.2em] text-emerald-500">Outils de conversion (CTR)</h3>
+             <div className="space-y-4">
                 <div className="flex gap-4">
                   <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 border border-indigo-100 dark:border-indigo-900/50">
                     <Swords className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold dark:text-white">IA CTR Predictor (A/B Test)</p>
-                    <p className="text-[11px] text-neutral-500 mt-0.5 line-height-relaxed">
+                    <p className="text-sm font-bold dark:text-white">IA CTR Predictor (A/B Test)</p>
+                    <p className="text-xs text-neutral-500 mt-0.5 line-height-relaxed">
                       Sélectionnez deux miniatures avec l&apos;icône ⚔️. L&apos;IA simulera le comportement des spectateurs pour déterminer laquelle aura le meilleur taux de clic.
                     </p>
                   </div>
@@ -128,8 +128,8 @@ export function InfoModal() {
                     <Type className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold dark:text-white">Générateur de Titres IA</p>
-                    <p className="text-[11px] text-neutral-500 mt-0.5">
+                    <p className="text-sm font-bold dark:text-white">Générateur de Titres IA</p>
+                    <p className="text-xs text-neutral-500 mt-0.5">
                       Analyse visuelle de votre miniature pour suggérer 5 titres &quot;putaclic&quot; mais honnêtes, optimisés pour l&apos;algorithme.
                     </p>
                   </div>
@@ -140,8 +140,8 @@ export function InfoModal() {
                     <Monitor className="w-4 h-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold dark:text-white">Simulateur In-Situ</p>
-                    <p className="text-[11px] text-neutral-500 mt-0.5">
+                    <p className="text-sm font-bold dark:text-white">Simulateur In-Situ</p>
+                    <p className="text-xs text-neutral-500 mt-0.5">
                       Visualisez votre création directement dans le flux YouTube Desktop et Mobile pour tester la lisibilité et le contraste.
                     </p>
                   </div>
@@ -153,8 +153,8 @@ export function InfoModal() {
           <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/30 flex gap-4">
             <AlertTriangle className="w-5 h-5 text-amber-500 shrink-0" />
             <div className="space-y-1">
-              <p className="text-xs font-bold text-amber-700 dark:text-amber-400">Quota & Limites</p>
-              <p className="text-[11px] text-amber-600 dark:text-amber-500 leading-relaxed">
+              <p className="text-sm font-bold text-amber-700 dark:text-amber-400">Quota & Limites</p>
+              <p className="text-xs text-amber-600 dark:text-amber-500 leading-relaxed">
                 Le modèle Gemini Free Tier est limité par minute. Si la génération échoue, attendez 60s. Le mode démo (Play) permet de tester l&apos;interface sans consommer de quota.
               </p>
             </div>
@@ -162,7 +162,7 @@ export function InfoModal() {
 
           {/* Tips */}
           <div className="space-y-2">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-600">
+            <h3 className="text-sm font-semibold uppercase tracking-wider text-neutral-400 dark:text-neutral-600">
               Conseils pour de meilleurs résultats
             </h3>
             <ul className="space-y-1.5">
@@ -174,7 +174,7 @@ export function InfoModal() {
               ].map((tip, i) => (
                 <li
                   key={i}
-                  className="flex items-start gap-2 text-xs text-neutral-500 dark:text-neutral-500"
+                  className="flex items-start gap-2 text-sm text-neutral-500 dark:text-neutral-500"
                 >
                   <span className="mt-1.5 w-1 h-1 rounded-full bg-neutral-300 dark:bg-neutral-700 shrink-0" />
                   {tip}
@@ -186,8 +186,8 @@ export function InfoModal() {
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950/50 shrink-0">
-          <p className="text-[10px] text-neutral-400 dark:text-neutral-600 text-center uppercase tracking-[0.3em] font-black">
-            ThumbnailAI Studio · v1.2
+          <p className="text-xs text-neutral-400 dark:text-neutral-600 text-center uppercase tracking-[0.3em] font-black">
+            ThumbnailAI Studio · info
           </p>
         </div>
       </div>

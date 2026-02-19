@@ -45,9 +45,9 @@ const SUGGESTIONS = [
 ];
 
 const ASPECT_RATIOS = [
-  { id: "16:9", label: "YouTube", icon: <Monitor className="w-3.5 h-3.5" /> },
-  { id: "9:16", label: "Shorts", icon: <Smartphone className="w-3.5 h-3.5" /> },
-  { id: "1:1", label: "Community", icon: <Square className="w-3.5 h-3.5" /> },
+  { id: "16:9", label: "YouTube", icon: <Monitor className="w-4 h-4" /> },
+  { id: "9:16", label: "Shorts", icon: <Smartphone className="w-4 h-4" /> },
+  { id: "1:1", label: "Community", icon: <Square className="w-4 h-4" /> },
 ];
 
 export default function Home() {
@@ -244,8 +244,8 @@ export default function Home() {
         <div className="max-w-4xl mx-auto px-6 h-14 flex items-center justify-between">
           {/* Logo */}
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-neutral-900 dark:bg-white flex items-center justify-center">
-              <Youtube className="w-4 h-4 text-white dark:text-neutral-900" />
+            <div className="w-8 h-8 rounded-lg bg-neutral-900 dark:bg-white flex items-center justify-center">
+              <Youtube className="w-5 h-5 text-white dark:text-neutral-900" />
             </div>
             <span className="text-sm font-semibold tracking-tight">ThumbnailAI</span>
           </div>
@@ -269,8 +269,8 @@ export default function Home() {
 
       <main className="max-w-4xl mx-auto px-6 py-10 space-y-8 pb-32">
         <div className="space-y-1">
-          <h2 className="text-2xl font-bold tracking-tight">Générateur de miniatures</h2>
-          <p className="text-sm text-neutral-500 dark:text-neutral-400">
+          <h2 className="text-3xl font-bold tracking-tight">Générateur de miniatures</h2>
+          <p className="text-neutral-500 dark:text-neutral-400">
             Créez des visuels YouTube percutants avec Gemini en quelques secondes.
           </p>
         </div>
@@ -283,17 +283,17 @@ export default function Home() {
         </div>
 
         {/* PROMPT AREA */}
-        <div className="space-y-4">
+        <div className="space-y-6">
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Description</label>
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <label className="text-sm font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Description</label>
               <div className="flex gap-2">
                 {ASPECT_RATIOS.map(ratio => (
                   <button
                     key={ratio.id}
                     onClick={() => setAspectRatio(ratio.id)}
                     className={cn(
-                      "flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-medium border transition-all",
+                      "flex items-center gap-1.5 px-3 py-2 rounded-md text-[10px] font-medium border transition-all",
                       aspectRatio === ratio.id 
                         ? "bg-neutral-900 border-neutral-900 text-white dark:bg-neutral-100 dark:border-neutral-100 dark:text-neutral-900" 
                         : "bg-white border-neutral-200 text-neutral-500 hover:border-neutral-300 dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-400"
@@ -317,13 +317,13 @@ export default function Home() {
                 onKeyDown={handleKeyDown}
                 placeholder="Ex: Homme choqué devant un graphique, style cinématique..."
                 className="w-full bg-transparent text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-600 resize-none px-4 pt-4 pb-3 text-sm leading-relaxed focus:outline-none min-h-[100px]"
-                rows={3}
+                rows={4}
               />
               <div className="flex items-center justify-between px-4 py-2.5 border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50">
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] font-bold text-neutral-400 dark:text-neutral-600 uppercase tracking-tight">CTRL+ENTER</span>
-                  <div className="h-3 w-px bg-neutral-200 dark:bg-neutral-800" />
-                  <span className="text-[10px] font-medium text-neutral-400 dark:text-neutral-500">VOUS INSPIREZ ? CLIQUEZ SUR UNE SUGGESTION</span>
+                  <div className="h-4 w-px bg-neutral-200 dark:bg-neutral-800" />
+                  <span className="text-[9px] font-medium text-neutral-400 dark:text-neutral-500">VOUS INSPIREZ ? CLIQUEZ SUR UNE SUGGESTION</span>
                 </div>
                 <span className={cn("text-[10px] font-mono tabular-nums", prompt.length > 800 ? "text-red-500" : "text-neutral-400")}>
                   {prompt.length}/1000
@@ -338,7 +338,7 @@ export default function Home() {
               <button
                 key={s}
                 onClick={() => setPrompt(s)}
-                className="px-2.5 py-1 rounded-full text-[10px] font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors border border-transparent hover:border-neutral-300 dark:hover:border-neutral-700 shadow-sm"
+                className="px-3 py-2 rounded-full text-sm font-medium bg-neutral-100 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200 dark:hover:bg-neutral-700 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors border border-transparent hover:border-neutral-300 dark:hover:border-neutral-700 shadow-sm"
               >
                 {s}
               </button>
@@ -348,7 +348,7 @@ export default function Home() {
 
         {/* CONTROLS */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50/50 dark:bg-neutral-900/50 shadow-sm">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <span className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Nombre</span>
             <div className="flex items-center gap-1.5">
               <button 
@@ -422,7 +422,7 @@ export default function Home() {
           <div className="space-y-6">
             <div className="flex items-center gap-4">
               <div className="h-px flex-1 bg-neutral-200 dark:bg-neutral-800" />
-              <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500 whitespace-nowrap">
+              <span className="text-xs font-bold uppercase tracking-widest text-neutral-400 dark:text-neutral-500 whitespace-nowrap">
                 {isLoading || isDemoLoading ? "En cours de rendu" : "Dernière création"}
               </span>
               <div className="h-px flex-1 bg-neutral-200 dark:bg-neutral-800" />
@@ -442,16 +442,16 @@ export default function Home() {
         {!isLoading && !isDemoLoading && generatedImages.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 gap-6">
             <div className="relative">
-               <div className="w-20 h-20 rounded-[2rem] bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center border border-neutral-100 dark:border-neutral-800 shadow-sm transition-transform hover:scale-110 duration-500">
-                <Youtube className="w-10 h-10 text-neutral-300 dark:text-neutral-700" />
+               <div className="w-25 h-25 rounded-[2rem] bg-neutral-50 dark:bg-neutral-900 flex items-center justify-center border border-neutral-100 dark:border-neutral-800 shadow-sm transition-transform hover:scale-110 duration-500">
+                <Youtube className="w-15 h-15 text-neutral-300 dark:text-neutral-700" />
               </div>
               <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 flex items-center justify-center shadow-lg animate-bounce">
-                <Sparkles className="w-4 h-4" />
+                <Sparkles className="w-5 h-5" />
               </div>
             </div>
             <div className="text-center space-y-2">
-              <p className="text-sm font-bold text-neutral-900 dark:text-neutral-200 uppercase tracking-widest">Lancez votre création</p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-500 max-w-[280px] leading-relaxed mx-auto">
+              <p className="text-lg font-bold text-neutral-900 dark:text-neutral-200 uppercase tracking-widest">Lancez votre création</p>
+              <p className="text-sm text-neutral-500 dark:text-neutral-500 max-w-[280px] leading-relaxed mx-auto">
                 Utilisez une suggestion ou décrivez votre idée. Testez le bouton <kbd className="px-1.5 py-0.5 rounded border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 font-mono text-[10px] ml-1">Play</kbd> pour une démo.
               </p>
             </div>

@@ -73,10 +73,10 @@ export function YouTubePreviewModal({ image, aspectRatio, isOpen, onClose, title
   const demoTitle = title || "COMMENT CRÉER DES MINIATURES INCROYABLES AVEC L'IA ! (Tuto complet)";
 
   const modal = (
-    <div className="fixed inset-0 z-10000 flex items-center justify-center bg-black/90 backdrop-blur-md p-0 sm:p-4 lg:p-8">
+    <div className="fixed inset-0 z-10000 flex items-center justify-center bg-black/90 backdrop-blur-md p-0">
       <div className="absolute inset-0" onClick={onClose} />
       
-      <div className="relative z-10 w-full max-w-[1600px] h-full flex flex-col bg-white dark:bg-[#0f0f0f] sm:rounded-3xl shadow-2xl border border-white/5 overflow-hidden">
+      <div className="relative z-10 w-full max-w-[1600px] h-full flex flex-col bg-white dark:bg-[#0f0f0f] shadow-2xl border border-white/5 overflow-hidden">
         {/* TOP TOOLBAR (INTERNAL) */}
         <div className="flex items-center justify-between px-6 py-3 bg-white dark:bg-[#0f0f0f] border-b border-neutral-200 dark:border-white/10 shrink-0">
           <div className="flex items-center gap-4">

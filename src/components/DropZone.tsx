@@ -63,8 +63,8 @@ export function DropZone({
   };
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
+    <div className="flex flex-col gap-3">
+      <label className="text-sm font-medium text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">
         {label}
       </label>
       <div

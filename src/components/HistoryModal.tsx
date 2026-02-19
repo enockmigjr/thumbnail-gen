@@ -74,10 +74,10 @@ export function HistoryModal({ history, onClear, onUseItem }: HistoryModalProps)
               <HistoryIcon className="w-3.5 h-3.5 text-neutral-600 dark:text-neutral-400" />
             </div>
             <div>
-              <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+              <h2 className="text-2xl font-semibold text-neutral-900 dark:text-neutral-100">
                 Historique des générations
               </h2>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">
+              <p className="text-sm text-neutral-500 dark:text-neutral-400">
                 Retrouvez vos {history.length} dernières créations
               </p>
             </div>
@@ -88,16 +88,16 @@ export function HistoryModal({ history, onClear, onUseItem }: HistoryModalProps)
                 variant="ghost"
                 size="sm"
                 onClick={onClear}
-                className="h-8 text-[10px] text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 font-bold uppercase tracking-wider"
+                className="h-8 text-sm text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 font-bold uppercase tracking-wider"
               >
-                <Trash2 className="w-3 h-3 mr-1.5" />
+                <Trash2 className="w-4 h-4 mr-1.5" />
                 Effacer
               </Button>
             )}
             <button
               onClick={() => setOpen(false)}
               className={cn(
-                "w-7 h-7 rounded-lg flex items-center justify-center transition-colors",
+                "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
                 "text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200",
                 "hover:bg-neutral-100 dark:hover:bg-neutral-800"
               )}
@@ -114,7 +114,7 @@ export function HistoryModal({ history, onClear, onUseItem }: HistoryModalProps)
               <div className="w-16 h-16 rounded-2xl bg-neutral-50 dark:bg-neutral-900 border border-neutral-100 dark:border-neutral-800 flex items-center justify-center">
                  <HistoryIcon className="w-8 h-8 text-neutral-300 dark:text-neutral-700" />
               </div>
-              <p className="text-xs text-neutral-500 dark:text-neutral-500">
+              <p className="text-sm text-neutral-500 dark:text-neutral-500">
                 Votre historique est vide.
               </p>
             </div>
@@ -132,11 +132,11 @@ export function HistoryModal({ history, onClear, onUseItem }: HistoryModalProps)
                       </p>
                       <div className="flex items-center gap-3 text-[10px] font-medium text-neutral-400 dark:text-neutral-500">
                         <span className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
+                          <Calendar className="w-4 h-4" />
                           {new Date(item.timestamp).toLocaleDateString()}
                         </span>
                         <span className="flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
+                          <Clock className="w-4 h-4" />
                           {new Date(item.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                         <span className="px-1.5 py-0.5 rounded bg-neutral-200/50 dark:bg-neutral-800/50 text-neutral-600 dark:text-neutral-400 uppercase tracking-tight">
@@ -151,7 +151,7 @@ export function HistoryModal({ history, onClear, onUseItem }: HistoryModalProps)
                         onUseItem(item);
                         setOpen(false);
                       }}
-                      className="h-8 text-[10px] font-bold uppercase tracking-wider shrink-0 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 hover:opacity-90"
+                      className="h-8 text-sm font-bold uppercase tracking-wider shrink-0 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 hover:opacity-90"
                     >
                       Restaurer
                     </Button>
@@ -166,7 +166,7 @@ export function HistoryModal({ history, onClear, onUseItem }: HistoryModalProps)
 
         {/* Footer */}
         <div className="px-6 py-3 border-t border-neutral-100 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950/50 shrink-0">
-          <p className="text-[10px] text-neutral-400 dark:text-neutral-600 text-center uppercase tracking-widest font-medium">
+          <p className="text-xs text-neutral-400 dark:text-neutral-600 text-center uppercase tracking-widest font-medium">
             ThumbnailAI · Historique local
           </p>
         </div>

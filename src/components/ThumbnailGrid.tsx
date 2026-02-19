@@ -201,47 +201,47 @@ export function ThumbnailGrid({
   };
 
   const aspectClass = aspectRatio === "9:16" ? "aspect-9/16" : aspectRatio === "1:1" ? "aspect-square" : "aspect-video";
-  const gridClass = aspectRatio === "9:16" ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-1 sm:grid-cols-2";
+  const gridClass = aspectRatio === "9:16" ? "grid-cols-1 mx-5 sm:mx-0 sm:grid-cols-2 lg:grid-cols-4" : "grid-cols-1 sm:grid-cols-2" ;
 
   if (!isLoading && images.length === 0) return null;
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Header Actions */}
-      <div className="flex items-center justify-between px-1">
-        <div className="flex items-center gap-4">
-           {selectedForComparison.length > 0 && (
-             <div className="flex items-center gap-4 p-2 pl-4 rounded-2xl bg-neutral-100 dark:bg-white/5 border border-neutral-200 dark:border-white/10 animate-in slide-in-from-left-4">
-                <div className="flex items-center gap-2">
-                   <Swords className="w-4 h-4 text-emerald-500" />
-                   <span className="text-[10px] font-black uppercase tracking-wider text-neutral-400 dark:text-neutral-500">Selection A/B</span>
+      <div className="flex items-center justify-between px-1"> 
+        {selectedForComparison.length > 0 && (
+          <div className="flex items-center flex-wrap gap-4 p-2 pl-4 rounded-2xl bg-neutral-100 dark:bg-white/5 border border-neutral-200 dark:border-white/10 animate-in slide-in-from-left-4">
+            <div className="flex">
+              <div className="flex items-center gap-2">
+                <Swords className="w-4 h-4 text-emerald-500" />
+                <span className="text-[10px] font-black uppercase tracking-wider text-neutral-400 dark:text-neutral-500">Selection A/B</span>
+            </div>
+            <div className="flex -space-x-2.5">
+              {selectedForComparison.map(idx => (
+                <div key={idx} className="w-8 h-8 rounded-full border-2 border-white dark:border-neutral-950 bg-neutral-200 overflow-hidden relative shadow-sm ring-1 ring-emerald-500/20">
+                  <Image src={`data:${images[idx].mediaType};base64,${images[idx].data}`} fill alt="images a comparer" className="object-cover" />
                 </div>
-                <div className="flex -space-x-2.5">
-                  {selectedForComparison.map(idx => (
-                    <div key={idx} className="w-8 h-8 rounded-full border-2 border-white dark:border-neutral-950 bg-neutral-200 overflow-hidden relative shadow-sm ring-1 ring-emerald-500/20">
-                      <Image src={`data:${images[idx].mediaType};base64,${images[idx].data}`} fill alt="選" className="object-cover" />
-                    </div>
-                  ))}
-                  {selectedForComparison.length < 2 && (
-                    <div className="w-8 h-8 rounded-full border-2 border-dashed border-neutral-300 dark:border-neutral-800 bg-transparent flex items-center justify-center text-[10px] text-neutral-400">
-                      +1
-                    </div>
-                  )}
+              ))}
+              {selectedForComparison.length < 2 && (
+                <div className="w-8 h-8 rounded-full border-2 border-dashed border-neutral-300 dark:border-neutral-800 bg-transparent flex items-center justify-center text-[10px] text-neutral-400">
+                  +1
                 </div>
-                {selectedForComparison.length === 2 && (
-                  <Button 
-                    size="sm" 
-                    onClick={startComparison}
-                    disabled={isComparing}
-                    className="h-8 text-[10px] font-black uppercase tracking-widest bg-black dark:bg-white text-white dark:text-black hover:opacity-90 rounded-xl px-4 shadow-xl active:scale-95 transition-all"
-                  >
-                    {isComparing ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-2" /> : <Bot className="w-3.5 h-3.5 mr-2" />}
-                    Prédire le CTR
-                  </Button>
-                )}
-             </div>
-           )}
-        </div>
+              )}
+            </div>
+            </div>
+            {selectedForComparison.length === 2 && (
+              <Button 
+                size="sm" 
+                onClick={startComparison}
+                disabled={isComparing}
+                className="h-8 text-[10px] font-black uppercase tracking-widest bg-black dark:bg-white text-white dark:text-black hover:opacity-90 rounded-xl px-4 shadow-xl active:scale-95 transition-all"
+              >
+                {isComparing ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-2" /> : <Bot className="w-3.5 h-3.5 mr-2" />}
+                Prédire le CTR
+              </Button>
+            )}
+          </div>
+        )}
 
         <div className="flex items-center gap-3">
           {images.length > 1 && (
@@ -352,7 +352,7 @@ export function ThumbnailGrid({
                     <div className="absolute bottom-4 left-4 right-4 flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
                         <Button
                           size="sm"
-                          className="h-10 flex-1 text-[11px] font-black uppercase tracking-widest bg-white text-neutral-900 hover:opacity-90 rounded-xl shadow-2xl active:scale-95"
+                          className="h-10 flex-1 text-[11px] font-black uppercase tracking-widest bg-white text-neutral-900 hover:bg-white/90 hover:text-neutral-900 rounded-xl shadow-2xl active:scale-95"
                           onClick={() => downloadImage(img.data, img.mediaType, index)}
                         >
                           <Download className="w-4 h-4 mr-2 text-emerald-500" />
